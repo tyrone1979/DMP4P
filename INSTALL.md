@@ -32,9 +32,11 @@ conda create --name meal python=3.11.4
 conda activate meal
 ```
 
+3. download NHANES raw data from https://doi.org/10.6084/m9.figshare.30153778/NHANES_raw_data to project_root_path/data/nhanes/data 
+
 ### run jupyterlab
 ```commandline
-~/meal-rec-ai/jupyter-notebook
+~/project_root_path/jupyter-notebook
 ```
 
 2. make users.csv data
@@ -97,9 +99,9 @@ CREATE DATABASE nutri WITH OWNER = postgres;
 sudo -u postgres psql -d nutri \
      -c "\copy food_code(food_id,food_desc,food_desc_long,years,positive,negative) FROM 'food_code.csv' CSV HEADER"
 sudo -u postgres psql -d nutri \
-     -c "\copy food_user(food_id,user_id,eating_type,grams,day,years,daily_food_id) FROM 'D:/projects/meal-rec-ai/data/nhanes/data/food_user.csv' CSV HEADER"
+     -c "\copy food_user(food_id,user_id,eating_type,grams,day,years,daily_food_id) FROM 'food_user.csv' CSV HEADER"
 sudo -u postgres psql -d nutri \
-     -c "\copy food_user(daily_food_id,food_id,user_id,eating_type,grams,day,years) FROM 'D:/projects/meal-rec-ai/data/nhanes/data/food_user_bronze.csv' CSV HEADER"
+     -c "\copy food_user(daily_food_id,food_id,user_id,eating_type,grams,day,years) FROM 'food_user_bronze.csv' CSV HEADER"
 sudo -u postgres psql -d nutri \
      -c "\copy daily_food_with_nutrition_target_gold(user_id,age_group,gender,grams,calorie,protein,carb,sugar,fiber,saturated_fat,cholesterol,folic_acid,vitamin_b12,vitamin_c,vitamin_d,calcium,phosphorus,potassium,iron,sodium,age,user_low_phosphorus,user_low_carb,weight,height,under_weight,over_weight,user_low_calorie,user_high_calorie,user_low_sodium,user_high_potassium,blood_pressure,user_low_saturated_fat,user_low_cholesterol,low_density_lipoprotein,blood_urea_nitrogen,user_low_protein,user_high_protein,opioid_misuse,diabetes,user_low_sugar,user_high_fiber,anemia,user_high_vitamin_b12,user_high_folate_acid,user_high_iron,user_high_vitamin_c,user_high_calcium,user_high_vitamin_d,osteoporosis,level,b_calorie,b_carb,b_fiber,b_protein,b_saturated_fat,b_sugar,b_cholesterol,macro_health_score,b_sodium,b_phosphorus,b_potassium,b_iron,b_calcium,b_folic_acid,b_vitamin_c,b_vitamin_d,b_vitamin_b12,micro_health_score,match,total_positive_score,total_negative_score,daily_food_id,target) FROM 'daily_food_with_nutrition_target_gold.csv' CSV HEADER"    
 sudo -u postgres psql -d nutri \
