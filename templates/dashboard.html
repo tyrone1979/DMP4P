@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h1 class="mb-4">Dashboard</h1>
+
+    <div class="row mb-3">
+      <!-- 总用户数 -->
+      <div class="col-md-6">
+        <div class="card text-white bg-primary mb-3">
+          <div class="card-header">Total Users：<strong>{{ stats.total_users if stats else '-' }}</strong></div>
+          <div class="card-body">
+            <h5 class="card-title">Gender</h5>
+            <p class="card-text">
+              Male: {{ stats.male_users_ratio if stats else '-' }}% / Female: {{ stats.female_users_ratio if stats else '-' }}%
+            </p>
+            <h5 class="card-title">Age group , User Count</h5>
+            <ul>
+            {% if stats and stats.age_group %}
+                {% for age_group in stats.age_group %}
+                <li>
+                  {{ age_group }}</li>
+                {% endfor %}
+            {% endif %}
+          </ul>
+          </div>
+        </div>
+      </div>
+       <!-- Meal Plan -->
+      <div class="col-md-6">
+        <div class="card text-white bg-info mb-3">
+          <div class="card-header">Daily Meal Plans：：<strong>{{ stats.meal_plans if stats else '-' }}</strong></div>
+          <div class="card-body">
+            <h5 class="card-title">Gold: {{ stats.gold_meal_plans if stats else '-' }}</h5>
+            <p class="card-text">
+              Indicates a meal plan that exists in the NHANES dataset and is consumed by users who are within their personal nutritional target range.
+            </p>
+            <h5 class="card-title">Silver:{{ stats.silver_meal_plans if stats else '-' }}</h5>
+            <p class="card-text">
+              Indicates a meal plan that exists in the NHANES dataset and meets personal nutritional target range of a different user.
+            </p>
+            <h5 class="card-title">Bronze:{{ stats.bronze_meal_plans if stats else '-' }}</h5>
+            <p class="card-text">
+              Indicates a meal plan that does not exist in the NHANES dataset and is generated using a genetic algorithm from the NHANES food library based on the user's nutritional target range.
+            </p>
+          </div>
+
+        </div>
+      </div>
+      <!-- Targets
+      <div class="col-md-4">
+        <div class="card text-white bg-warning mb-3">
+          <div class="card-header">Nutrition Targets</div>
+          <div class="card-body">
+            <h5 class="card-title"></h5>
+          </div>
+        </div>
+      </div> -->
+    </div>
+    <div class="row mb-4">
+      <!-- 医疗状况分布 -->
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header   text-white bg-primary mb-3">User Distribution by Medical Condition</div>
+          <div class="card-body">
+            <div id="user_medicalChart" class="chart-container"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header   text-white bg-primary mb-3">User Distribution by User Preference</div>
+          <div class="card-body">
+            <div id="user_preferenceChart" class="pchart-container"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  <div class="row mb-4">
+        <!-- 医疗状况分布 -->
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-header   text-white bg-info mb-3">Meal Plan Distribution by Medical Condition</div>
+            <div class="card-body">
+              <div id="mealplan_medicalChart" class="chart-container"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-header   text-white bg-info mb-3">Meal Plan Distribution by User Preference</div>
+            <div class="card-body">
+              <div id="mealplan_preferenceChart" class="pchart-container"></div>
+            </div>
+          </div>
+        </div>
+  </div>
+  <script nonce="{{nonce}}">
+
+    function showChart(id, chartData, color ){
+        const chart = echarts.init(document.getElementById(id));
+        const sortedData = Object.entries(chartData)
+          .sort((a, b) => a[1] - b[1])
+          .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+        const option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
+          },
+          xAxis: {
+            type: 'value'
+          },
+          yAxis: {
+            type: 'category',
+            data: Object.keys(sortedData),
+            axisLabel: {
+              interval: 0,
+              rotate: 30,
+              margin: 10,
+              textStyle: {
+                fontSize: 10 // 减小字体大小
+              }
+            }
+          },
+          series: [
+            {
+              name: 'Count',
+              type: 'bar',
+              itemStyle:{color:color},
+              data: Object.values(sortedData)
+            }
+          ]
+        };
+        chart.setOption(option);
+    }
+
+    $(document).ready(function() {
+     const user_medical = {{ stats.user_medical | tojson if stats else '{}'}};
+     showChart('user_medicalChart',user_medical,'#3f51b5');
+     const user_preference = {{ stats.user_preference | tojson if stats else '{}'}};
+     showChart('user_preferenceChart',user_preference,'#2196f3');
+     const meal_plan_medical = {{ stats.meal_plan_medical | tojson if stats else '{}'}};
+     showChart('mealplan_medicalChart',meal_plan_medical,'#388e3c');
+     const meal_plan_preference = {{ stats.meal_plan_preference | tojson if stats else '{}'}};
+     showChart('mealplan_preferenceChart',meal_plan_preference,'#66bb6a');
+    });
+  </script>
+{% endblock %}

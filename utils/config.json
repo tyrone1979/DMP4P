@@ -1,0 +1,342 @@
+{
+  "nutrients": ["calorie", "carb", "fiber", "protein", "saturated_fat", "sugar", "cholesterol",
+                "sodium", "phosphorus", "potassium", "iron", "calcium", "folic_acid", "vitamin_c",
+                "vitamin_d", "vitamin_b12"],
+  "macro_nutrients": ["calorie", "carb", "fiber", "protein", "saturated_fat", "sugar", "cholesterol"],
+  "micro_nutrients": ["sodium", "phosphorus", "potassium", "iron", "calcium", "folic_acid", "vitamin_c",
+                "vitamin_d", "vitamin_b12"],
+
+  "food_categories": {
+    "7": { "score": 1, "type": "positive" },
+    "6": { "score": 1, "type": "positive" },
+    "5": { "score": 1, "type": "positive" },
+    "26": { "score": 1, "type": "positive" },
+    "24": { "score": 1, "type": "positive" },
+    "4": { "score": 1, "type": "positive" },
+    "20": { "score": 1, "type": "negative" },
+    "21": { "score": 1, "type": "negative" },
+    "22": { "score": 1, "type": "negative" },
+    "23": { "score": 1, "type": "negative" },
+    "25": { "score": 1, "type": "negative" },
+    "27": { "score": 1, "type": "negative" },
+    "28": { "score": 1, "type": "negative" },
+    "12": { "score": 1, "type": "negative" },
+    "13": { "score": 1, "type": "negative" },
+    "14": { "score": 1, "type": "negative" },
+    "9": { "score": 1, "type": "negative" },
+    "81": { "score": 1, "type": "negative" }
+  },
+  "medical_cols": [
+    "under_weight", "over_weight", "low_density_lipoprotein", "blood_urea_nitrogen", "diabetes",
+    "blood_pressure", "under_weight", "anemia", "osteoporosis", "opioid_misuse", "user_high_fiber",
+    "user_low_calorie", "user_low_carb", "user_low_protein", "user_high_protein",
+    "user_low_saturated_fat", "user_low_sugar", "user_low_cholesterol",
+    "user_low_phosphorus", "user_high_calorie", "user_low_sodium",
+    "user_high_potassium", "user_high_folate_acid", "user_high_iron",
+    "user_high_vitamin_b12", "user_high_calcium", "user_high_vitamin_c",
+    "user_high_vitamin_d"
+  ],
+  "nutrition_by_situation": {
+    "health": [],
+    "under_weight": [],
+    "over_weight": ["sugar"],
+    "blood_pressure": ["sodium", "potassium"],
+    "low_density_lipoprotein": ["fiber"],
+    "blood_urea_nitrogen": [],
+    "diabetes": ["sugar", "sodium"],
+    "anemia": ["iron", "vitamin_c", "folic_acid", "vitamin_b12"],
+    "osteoporosis": ["calcium", "vitamin_d", "vitamin_c"],
+    "opioid_misuse": ["fiber", "sugar", "sodium"],
+    "user_low_phosphorus": ["phosphorus"],
+    "user_low_saturated_fat": [],
+    "user_low_carb": [],
+    "user_low_calorie": [],
+    "user_low_cholesterol": [],
+    "user_low_sugar": ["sugar"],
+    "user_high_calorie": [],
+    "user_low_protein": [],
+    "user_low_sodium": ["sodium"],
+    "user_high_potassium": ["potassium"],
+    "user_high_protein": [],
+    "user_high_fiber": ["fiber"],
+    "user_high_folate_acid": ["folic_acid"],
+    "user_high_iron": ["iron"],
+    "user_high_vitamin_b12": ["vitamin_b12"],
+    "user_high_calcium": ["calcium"],
+    "user_high_vitamin_c": ["vitamin_c"],
+    "user_high_vitamin_d": ["vitamin_d"]
+  },
+  "essentional_nutritions": ["calorie", "protein", "carb", "saturated_fat", "cholesterol"],
+  "MET_and_EER": {
+    "MET": "1 if level == 1 else 1.11 if gender == '1' and level == 2 else 1.25 if gender == '1' and level == 3 else 1.48 if gender == '1' and level == 4 else 1.48 if gender == '1' else 1.12 if gender == '2' and level == 2 else 1.27 if gender == '2' and level == 3 else 1.45 if gender == '2' and level == 4 else 1.45",
+    "EER": "662 + -9.53 * age + met*( 15.91* weight + 5.396 * height) if gender == '1' else 354 + -6.91 * age + met*( 9.36 * weight + 7.26 * height)"
+  },
+
+  "target_logic": {
+    "calorie": {
+        "conditions": {
+            "default":"EER"
+        }
+    },
+    "fiber": {
+        "conditions": {
+            "opioid_misuse":            "38 if gender == '1' and age <= 50 else 25 if gender == '2' and age <= 50 else 31 if gender == '1' else 21",
+            "low_density_lipoprotein":  "38 if gender == '1' and age <= 50 else 25 if gender == '2' and age <= 50 else 31 if gender == '1' else 21",
+            "user_high_fiber":          "38 if gender == '1' and age <= 50 else 25 if gender == '2' and age <= 50 else 31 if gender == '1' else 21",
+            "default": "INFINITY"
+        }
+    },
+    "carb": {
+        "conditions": {
+            "diabetes":       "EER * 0.65 / 4.0",
+            "user_low_carb":  "EER * 0.65 / 4.0",
+            "default":        "EER * 0.45 / 4.0"
+        }
+    },
+    "protein": {
+        "conditions": {
+            "default": "math.ceil(weight * 0.8)"
+        }
+    },
+    "saturated_fat": {
+        "conditions": {
+            "default": "math.ceil(EER / 2000.0 * 13.0)"
+        }
+    },
+    "sugar": {
+      "conditions": {
+            "over_weight":    "36 if gender == '1' else 25",
+            "diabetes":       "36 if gender == '1' else 25",
+            "opioid_misuse": "36 if gender == '1' else 25",
+            "user_low_sugar": "36 if gender == '1' else 25",
+            "default":        "50"
+        }
+    },
+    "cholesterol": {
+      "conditions": {
+        "low_density_lipoprotein": "200",
+        "user_low_cholesterol": "200",
+        "default": "300"
+      }
+    },
+
+    "sodium": {
+        "conditions": {
+            "blood_pressure":   "1500",
+            "diabetes":         "1500",
+            "opioid_misuse":    "1500",
+            "user_low_sodium":  "1500",
+            "default":          "2300"
+        }
+    },
+    "phosphorus": {
+        "conditions": {
+            "user_low_phosphorus": "700",
+            "default": "4000 if gender == '1' else 3000"
+        }
+    },
+
+    "potassium": {
+        "conditions": {
+            "blood_pressure":  "2600 if gender == '2' else 3400",
+            "default": "5000"
+        }
+    },
+    "iron": {
+        "conditions": {
+            "anemia": "18 if gender == '2' else 8",
+            "default": "45"
+        }
+    },
+
+    "calcium": {
+        "conditions": {
+            "osteoporosis": "1200 if gender == '2' else 1000",
+            "default": "2500 if gender == '1' else 2000"
+        }
+    },
+    "folic_acid": {
+        "conditions": {
+            "anemia": "400",
+            "default": "1000"
+        }
+    },
+
+    "vitamin_c": {
+        "conditions": {
+            "default": "2000"
+        }
+    },
+    "vitamin_d": {
+        "conditions": {
+           "osteoporosis": "20 if gender == '2' else 15",
+            "default": "100"
+        }
+    },
+    "vitamin_b12": {
+        "conditions": {
+            "anemia": "0",
+            "default": "2.4"
+        }
+    }
+  },
+  "target_range_logic": {
+    "calorie": {
+        "conditions": {
+            "over_weight": "[0, math.ceil(EER * 1.1 / 100) * 100]",
+            "under_weight": "[math.floor(calc_EER(gender, age, height, weight, 1) * 0.9 / 100) * 100, math.ceil(EER * 1.1 / 100) * 100]",
+            "user_low_calorie": "[0, math.ceil(EER * 1.1 / 100) * 100]",
+            "default": "[math.floor(calc_EER(gender, age, height, weight, 1) * 0.9 / 100) * 100, math.ceil(EER * 1.1 / 100) * 100]"
+        }
+    },
+    "fiber": {
+        "conditions": {
+            "opioid_misuse":            "[38, 99999] if gender == '1' and age <= 50 else [25, 99999] if gender == '2' and age <= 50 else [31, 99999] if gender == '1' else [21, 99999]",
+            "low_density_lipoprotein":  "[38, 99999] if gender == '1' and age <= 50 else [25, 99999] if gender == '2' and age <= 50 else [31, 99999] if gender == '1' else [21, 99999]",
+            "user_high_fiber":          "[38, 99999] if gender == '1' and age <= 50 else [25, 99999] if gender == '2' and age <= 50 else [31, 99999] if gender == '1' else [21, 99999]",
+            "default":                  "[0, INFINITY]"
+        }
+    },
+    "carb": {
+        "conditions": {
+            "diabetes":       "[0, math.ceil((EER * 0.65 / 4.0) / 50) * 50]",
+            "user_low_carb":  "[0, math.ceil((EER * 0.65 / 4.0) / 50) * 50]",
+            "default":        "[math.floor((EER * 0.45 / 4.0) / 50) * 50, math.ceil((EER * 0.65 / 4.0) / 50) * 50]"
+        }
+    },
+    "protein": {
+        "conditions": {
+            "blood_urea_nitrogen": "[0, math.ceil((weight * 0.8) / 10) * 10]",
+            "opioid_misuse": "[math.ceil((weight * 0.8) / 10) * 10, INFINITY]",
+            "user_low_protein": "[0, math.ceil((weight * 0.8) / 10) * 10]",
+            "user_high_protein": "[math.ceil((weight * 0.8) / 10) * 10, INFINITY]",
+            "default": "[0, math.ceil((weight * 0.8) / 10) * 10]"
+        }
+    },
+    "saturated_fat": {
+        "conditions": {
+            "over_weight": "[0,math.ceil((EER / 2000.0 * 13.0) / 5) * 5]",
+            "user_low_saturated_fat": "[0,math.ceil((EER / 2000.0 * 13.0) / 5) * 5]",
+            "default": "[0, INFINITY]"
+        }
+    },
+    "sugar": {
+      "conditions": {
+            "over_weight":    "[0, 36 if gender == '1' else 25]",
+            "diabetes":       "[0, 36 if gender == '1' else 25]",
+            "opioid_misuse":  "[0, 36 if gender == '1' else 25]",
+            "user_low_sugar": "[0, 36 if gender == '1' else 25]",
+            "default":        "[36 if gender == '1' else 25, 50]"
+        }
+    },
+    "cholesterol": {
+      "conditions": {
+        "low_density_lipoprotein": "[0, 200]",
+        "user_low_cholesterol":   "[0, 200]",
+        "default": "[0, 300]"
+      }
+    },
+
+    "sodium": {
+        "conditions": {
+            "blood_pressure": "[0, 1500]",
+            "diabetes": "[0, 1500]",
+            "opioid_misuse": "[0, 1500]",
+            "user_low_sodium": "[0, 1500]",
+            "default": "[1500, 2300]"
+        }
+    },
+    "phosphorus": {
+        "conditions": {
+            "user_low_phosphorus": "[0, 700]",
+            "default": "[700, 4000 if gender == '1' else 3000]"
+        }
+    },
+    "potassium": {
+        "conditions": {
+            "blood_pressure": "[2600 if gender == '2' else 3400, 5000]",
+            "default": "[0, 5000]"
+        }
+    },
+    "iron": {
+        "conditions": {
+             "anemia": "[18 if gender == '2' else 8, 45]",
+            "default": "[0, 45]"
+        }
+    },
+    "calcium": {
+        "conditions": {
+            "osteoporosis": "[1200 if gender == '2' else 1000, 2500 if gender == '1' else 2000]",
+            "default": "[0, 2500 if gender == '1' else 2000]"
+        }
+    },
+    "folic_acid": {
+        "conditions": {
+            "anemia": "[400, 1000]",
+            "default": "[0, 1000]"
+        }
+    },
+    "vitamin_c": {
+        "conditions": {
+            "anemia": "[90 if gender == '1' else 75, 2000]",
+            "osteoporosis": "[90 if gender == '1' else 75, 2000]",
+            "user_high_vitamin_c": "[90 if gender == '1' else 75, 2000]",
+            "default": "[0, 2000]"
+        }
+    },
+    "vitamin_d": {
+        "conditions": {
+           "osteoporosis": "[20 if gender == '2' else 15, 100]",
+           "default": "[0, 100]"
+        }
+    },
+    "vitamin_b12": {
+        "conditions": {
+            "anemia": "[0, 2.4]",
+            "default": "[0, 2.4]"
+        }
+    }
+  },
+  "medical_conditions": {
+    "over_weight": {
+      "condition": "BMI>=25 and (WAIST >=102 if gender ==1 else WAIST>=88)",
+      "preference": ["over_weight","low_calorie"]
+      },
+    "under_weight": {
+      "condition": "BMI<18.5",
+      "preference": ["under_weight","high_calorie"]
+    },
+    "blood_pressure": {
+      "condition": "systolic >= 130 or diastolic >= 80",
+      "preference": ["low_sodium","high_potassium","blood_pressure"]
+    },
+    "low_density_lipoprotein": {
+      "condition": "ldl and ldl>3.3",
+      "preference": ["low_cholesterol", "high_fiber", "low_saturated_fat","low_density_lipoprotein"]
+    },
+    "blood_urea_nitrogen": {
+      "condition": "blood_urea_nitrogen>=7.1",
+      "preference": ["low_protein","blood_urea_nitrogen"]
+    },
+    "opioid_misuse": {
+      "active_user":"(heroin.isin([4,-1])==False) | (meth.isin([4,-1])==False)| (cocaine.isin([4,-1])==False)",
+      "multum_drug_therapeutic_category": "level_one==57 and level_two==58 and (level_three==60 or level_three==191)",
+      "opioid_used": "(drunk_days > 90) and ( (used==1 and drug_id in multum_drug_therapeutic_categories ) or (icd_code=='F11.2' or icd_code=='F11.23') )",
+      "condition": "user in active_user or user in opioid_used",
+      "preference": ["low_sugar", "high_protein", "high_fiber","opioid_misuse"]
+    },
+    "diabetes": {
+      "condition": "glucose >= 7.0 and glycohemoglobin >= 6.5",
+      "preference": ["low_sugar", "high_fiber", "diabetes"]
+    },
+    "anemia":{
+      "condition": "red_blood_cell_count<= 4 and (hemoglobin<13.2 if gender ==1 else hemoglobin<11.6)",
+      "preference": ["high_iron", "high_vitamin_c", "high_folate_acid","high_vitamin_b12", "anemia"]
+    },
+    "osteoporosis": {
+      "condition": "osteoporosis==1",
+      "preference": ["high_calcium", "high_vitamin_d", "high_vitamin_c","osteoporosis"]
+    }
+  },
+  "infinity": 9999999.0
+}

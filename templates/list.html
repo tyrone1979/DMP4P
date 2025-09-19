@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>CSV 文件列表</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+</head>
+<body class="p-4">
+  <div class="container">
+    <h2 class="mb-3">请选择要浏览的 CSV 文件</h2>
+    <ul class="list-group">
+      {% for f in files %}
+        <li class="list-group-item">
+          <a href="{{ url_for('csv_view', filename=f) }}">{{ f }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</body>
+</html>

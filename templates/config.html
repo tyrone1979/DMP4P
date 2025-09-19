@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <h1 class="text-center my-5 fw-bold">Configuration</h1>
+            <p class="text-center text-muted mb-5"><b>This page displays the parameters configured in the config.json file for calculating nutrient targets,
+                identifying user medical information, and data mining for daily meal plans. To modify the parameters, please update the config.json file.</b></p>
+        </div>
+    </div>
+    <div class="row g-4">
+        <!-- 阈值表 -->
+        <div class="col-md-8">
+
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">MET and EER Formula</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-5"><b>This formula is for MET (Metabolic Equivalent of Task) and EER(Estimated Energy Requirement) calculation.</b></p>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Formula</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name, formula in data.MET_and_EER.items() %}
+                            <tr>
+                                <th>{{name}}</th>
+                                <td>{{ formula }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            <!-- Target Setting Logic -->
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h3 class="mb-0">Nutrition Target Calculation Logic</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-5"><b>This table is for nutrition target calculation.</b></p>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nutrition</th>
+                                <th>Conditions</th>
+                                <th>Formula</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for nutri, conditions in data.target_logic.items() %}
+                            <tr>
+                                <td>{{ nutri }}</td>
+                                <td>
+                                    <ul class="list-group">
+                                        {% for condition, formula in conditions.conditions.items() %}
+                                        <li class="list-group-item">{{ condition }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul class="list-group">
+                                        {% for condition, formula in conditions.conditions.items() %}
+                                        <li class="list-group-item">{{ formula }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- 情景下的营养物 -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">Nutrition Impact by Conditions</h3>
+                </div>
+                <div class="card-body p-3">
+                    <p class="text-muted mb-5"><b>This section represents nutrition impacts on medical condition or user preference.</b></p>
+                    {% for situation, nutrients in data.nutrition_by_situation.items() %}
+                    <div class="mb-3">
+                        <h4 class="text-capitalize">{{ situation }}</h4>
+                        {% if nutrients %}
+                            <ul class="list-group">
+                                {% for nutrient in nutrients %}
+                                <li class="list-group-item">{{ nutrient }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">No specific nutrition.</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Target Range Setting Logic -->
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="mb-0">Nutrition Target Range Setting Logic</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-5"><b>This table represents nutrition target range setting logics.</b></p>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nutrition</th>
+                                <th>Conditions</th>
+                                <th>Formula</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for nutri, conditions in data.target_range_logic.items() %}
+                            <tr>
+                                <td>{{ nutri }}</td>
+                                <td>
+                                    <ul class="list-group">
+                                        {% for condition, formula in conditions.conditions.items() %}
+                                        <li class="list-group-item">{{ condition }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul class="list-group">
+                                        {% for condition, formula in conditions.conditions.items() %}
+                                        <li class="list-group-item">{{ formula }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 医疗条件 -->
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Medical Conditions and Nutrition tags</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-5"><b>This table represents medical condition setting logic and nutrition tags based on medical conditions.</b></p>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Condition</th>
+                                <th>Condition Details</th>
+                                <th>Tags</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for condition, details in data.medical_conditions.items() %}
+                            <tr>
+                                <td>{{ condition }}</td>
+                                <td>
+                                    {% if condition == 'opioid_misuse' %}
+                                    <ul class="list-group">
+                                        <li class="list-group-item">Active User: {{ details.active_user }}</li>
+                                        <li class="list-group-item">Multum Drug Therapeutic Category: {{ details.multum_drug_therapeutic_category }}</li>
+                                        <li class="list-group-item">Opioid Used: {{ details.opioid_used }}</li>
+                                        <li class="list-group-item">Condition: {{ details.condition }}</li>
+                                    </ul>
+                                    {% else %}
+                                    {{ details.condition }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <ul class="list-group">
+                                        {% for pref in details.preference %}
+                                        <li class="list-group-item">{{ pref }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Daily Dietary Recommender</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <script src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item {% if active_page == 'recommendation' %}active{% endif %}">
+                        <a class="nav-link" href="/">Recommendation</a>
+                    </li>
+                    <li class="nav-item {% if active_page == 'users' %}active{% endif %}">
+                      <a class="nav-link" href="/users">Users</a>
+                    </li>
+                    <li class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item {% if active_page == 'config' %}active{% endif %}">
+                        <a class="nav-link" href="/config">Config</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面内容 -->
+    <div class="container">
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <p>地址：辽宁省大连市甘井子区软件园路8号（软件园校区）</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;辽宁省大连市高新园区博川路8号（博川校区）</p>
+                    <p>电话：+86-411-84835000</p>
+                    <p>传真：+86-411-84769999</p>
+                    <div class="copyright">
+                        <p>Copyright © 2002-2025 大连东软信息学院 All Rights Reserved</p>
+                        <p><a href="https://beian.miit.gov.cn " target="_blank" rel="noopener noreferrer">辽ICP备15002835号-1</a> | <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=21021102000079 " target="_blank" rel="noopener noreferrer">辽公网安备 21021102000079号</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

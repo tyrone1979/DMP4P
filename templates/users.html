@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/users.css') }}">
+<div class="mb-4">
+<h1 class="mb-4">Search by User</h1>
+  <form method="post" action="/users">
+    <!-- Medical Info -->
+    <h5 class="mt-4">Medical Info (choose all that apply)</h5>
+    <div class="row g-2">
+      {% for tag in ['over_weight','under_weight','opioid_misuse','low_density_lipoprotein',
+                     'diabetes','blood_urea_nitrogen','blood_pressure','anemia','osteoporosis'] %}
+      <div class="col-md-4">
+        <input type="checkbox" class="btn-check" name="medical_info" value="{{ tag }}" id="med_{{ tag }}" autocomplete="off">
+        <label class="btn btn-outline-danger w-100" for="med_{{ tag }}">
+          <i class="bi bi-tag"></i> {{ tag.replace('_',' ').title() }}
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- User Preferences -->
+    <h5 class="mt-4">User Preferences (choose all that apply)</h5>
+    <div class="row g-2">
+      {% for tag in ['low_calorie','high_calorie','low_carb','high_fiber',
+                     'low_protein','high_protein','low_saturated_fat','low_sugar',
+                     'low_sodium','low_cholesterol','low_phosphorus','high_potassium','high_folate_acid','high_iron',
+                     'high_vitamin_b12','high_calcium','high_vitamin_c','high_vitamin_d'] %}
+      <div class="col-md-4">
+        <input type="checkbox" class="btn-check" name="user_preference" value="{{ tag }}" id="pref_{{ tag }}" autocomplete="off">
+        <label class="btn btn-outline-primary w-100" for="pref_{{ tag }}">
+          <i class="bi bi-star"></i> {{ tag.replace('_',' ').title() }}
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+</div>
+<!-- 用户列表 -->
+<div class="table-responsive">
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Age</th>
+        <th>Gender</th>
+        <th>Weight</th>
+        <th>Height</th>
+        <th>Medical Info</th>
+        <th>User Preference</th>
+        <th>Target</th>
+        <th>Meal Plans</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>
+            {{ user.user_id }}
+        </td>
+        <td>{{ user.age }}</td>
+        <td>{% if user.gender == 1 %} Male {% elif user.gender == 2 %} Female {% else %}
+            {{ user.gender|default('') }} {% endif %}</td>
+        <td>{{ user.weight }}</td>
+        <td>{{ user.height }}</td>
+        <td>  {% set attribute_list = ['under_weight','over_weight','opioid_misuse','low_density_lipoprotein',
+          'blood_urea_nitrogen','blood_pressure', 'diabetes', 'anemia','osteoporosis'] %}
+            {% for attr in attribute_list %}
+              {% if user[attr] == 1 %}
+                <span class="tag tag-{{ attr }}">{{ attr | replace('_', ' ') | title }}</span>
+              {% endif %}
+            {% endfor %}
+        </td>
+        <td> {% set attribute_list = ['low_calorie','high_calorie','low_carb','high_fiber',
+          'low_protein','high_protein', 'low_saturated_fat', 'low_sugar','low_sodium',
+          'low_cholesterol','low_phosphorus','high_potassium','high_folate_acid','high_iron',
+          'high_vitamin_b12','high_calcium','high_vitamin_c','high_vitamin_d'] %}
+            {% for attr in attribute_list %}
+              {% if user['user_'+attr] == 1 %}
+                <span class="tag tag-{{ attr }}">{{ attr | replace('_', ' ') | title }}</span>
+              {% endif %}
+            {% endfor %}</td>
+        <td id="target-{{ user.user_id }}" class="nutrition-targets">
+          <!-- 留空，由JavaScript填充 -->
+        </td>
+        <td><a href="javascript:void(0);"
+             class="btn btn-sm btn-outline-success meal-plan-btn border-0 p-1 text-nowrap"
+             data-id="{{ user.user_id }}"
+             role="button">{{user.meal_plan_count}}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- 显示 Meal Plan 的模态框 -->
+<div class="modal fade" id="mealPlanModal" tabindex="-1" aria-labelledby="mealPlanModalLabel" aria-hidden="true">
+  <div class="modal-dialog meal_dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mealPlanModalLabel">Meal Plan Recommendation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="mealPlanModalBody">
+        {% include "mealplan.html" %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/users.js') }}"></script>
+<script nonce="{{ nonce }}">
+document.addEventListener('DOMContentLoaded', function() {
+  {% for user in users %}
+    try {
+      const targetData = JSON.parse(`{{ user.target | replace("'", '"') | safe }}`);
+      const container = document.getElementById('target-{{ user.user_id }}');
+      Object.entries(targetData).forEach(([nutrient, range]) => {
+        const unit = getUnit(nutrient);
+        const item = document.createElement('div');
+        item.className = 'target-item';
+        item.innerHTML = `
+          <span class="nutrient-name">${nutrient.replace(/_/g, ' ')}</span>
+          <span class="target-range">${range[0]} - ${range[1]} ${unit}</span>
+        `;
+        container.appendChild(item);
+      });
+    } catch(e) {
+      console.error('Error processing user {{ user.id }}:', e);
+    }
+  {% endfor %}
+
+
+
+  // 显示 Meal Plan
+  document.querySelectorAll('.meal-plan-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const userId = this.getAttribute('data-id');
+      fetch(`/user-meal-plan/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            const detailsData = data.details;
+            const mealPlan =   data.meal_plan;
+            const targetRange = data.target_range;
+            const targetData =  data.target;
+            const mealPlanModal = new bootstrap.Modal(document.getElementById('mealPlanModal'));
+            // 在模态框显示后初始化 ECharts 或调整图表大小
+            const modalEl = document.getElementById('mealPlanModal');
+            modalEl.addEventListener('shown.bs.modal', function () {
+              // 初始化 ECharts 或调整图表大小
+              render(targetRange,targetData,mealPlan,detailsData)
+            });
+            mealPlanModal.show();
+
+
+          } else {
+            alert('Failed to load meal plan: ' + data.message);
+          }
+        });
+    });
+  });
+});
+</script>
+{% endblock %}
