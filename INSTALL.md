@@ -110,181 +110,6 @@ sudo -u postgres psql -d nutri \
      -c "\copy daily_food_with_nutrition_target_bronze(daily_food_id,target,user_id,grams,calorie,protein,carb,sugar,fiber,saturated_fat,cholesterol,folic_acid,vitamin_b12,vitamin_c,vitamin_d,calcium,phosphorus,potassium,iron,sodium,age_group,gender,age,user_low_phosphorus,user_low_carb,weight,height,under_weight,over_weight,user_low_calorie,user_high_calorie,user_low_sodium,blood_pressure,user_high_potassium,user_low_saturated_fat,user_low_cholesterol,low_density_lipoprotein,blood_urea_nitrogen,user_low_protein,user_high_protein,opioid_misuse,user_low_sugar,user_high_fiber,diabetes,user_high_folate_acid,user_high_iron,user_high_vitamin_b12,anemia,osteoporosis,user_high_calcium,user_high_vitamin_c,user_high_vitamin_d,level,match) FROM 'daily_food_with_nutrition_target_bronze.csv' CSV HEADER"     
 ```
 
-### convert target column to targets table
-```SQL
-INSERT INTO targets (
-    target,
-    calorie_min, calorie_max,
-    protein_min, protein_max,
-    saturated_fat_min, saturated_fat_max,
-    carb_min, carb_max,
-    fiber_min, fiber_max,
-    sugar_min, sugar_max,
-    cholesterol_min, cholesterol_max,
-    sodium_min, sodium_max,
-    calcium_min, calcium_max,
-    phosphorus_min, phosphorus_max,
-    potassium_min, potassium_max,
-    iron_min, iron_max,
-    folic_acid_min, folic_acid_max,
-    vitamin_c_min, vitamin_c_max,
-    vitamin_d_min, vitamin_d_max,
-    vitamin_b12_min, vitamin_b12_max
-)
-SELECT DISTINCT
-    target AS target,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'calorie'->>0, 'null'), '-1')::numeric AS calorie_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'calorie'->>1, 'null'), '-1')::numeric AS calorie_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'protein'->>0, 'null'), '-1')::numeric AS protein_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'protein'->>1, 'null'), '-1')::numeric AS protein_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'saturated_fat'->>0, 'null'), '-1')::numeric AS saturated_fat_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'saturated_fat'->>1, 'null'), '-1')::numeric AS saturated_fat_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'carb'->>0, 'null'), '-1')::numeric AS carb_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'carb'->>1, 'null'), '-1')::numeric AS carb_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'fiber'->>0, 'null'), '-1')::numeric AS fiber_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'fiber'->>1, 'null'), '-1')::numeric AS fiber_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'sugar'->>0, 'null'), '-1')::numeric AS sugar_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'sugar'->>1, 'null'), '-1')::numeric AS sugar_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'cholesterol'->>0, 'null'), '-1')::numeric AS cholesterol_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'cholesterol'->>1, 'null'), '-1')::numeric AS cholesterol_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'sodium'->>0, 'null'), '-1')::numeric AS sodium_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'sodium'->>1, 'null'), '-1')::numeric AS sodium_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'calcium'->>0, 'null'), '-1')::numeric AS calcium_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'calcium'->>1, 'null'), '-1')::numeric AS calcium_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'phosphorus'->>0, 'null'), '-1')::numeric AS phosphorus_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'phosphorus'->>1, 'null'), '-1')::numeric AS phosphorus_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'potassium'->>0, 'null'), '-1')::numeric AS potassium_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'potassium'->>1, 'null'), '-1')::numeric AS potassium_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'iron'->>0, 'null'), '-1')::numeric AS iron_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'iron'->>1, 'null'), '-1')::numeric AS iron_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'folic_acid'->>0, 'null'), '-1')::numeric AS folic_acid_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'folic_acid'->>1, 'null'), '-1')::numeric AS folic_acid_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_c'->>0, 'null'), '-1')::numeric AS vitamin_c_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_c'->>1, 'null'), '-1')::numeric AS vitamin_c_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_d'->>0, 'null'), '-1')::numeric AS vitamin_d_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_d'->>1, 'null'), '-1')::numeric AS vitamin_d_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_b12'->>0, 'null'), '-1')::numeric AS vitamin_b12_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_b12'->>1, 'null'), '-1')::numeric AS vitamin_b12_max
-FROM daily_food_with_nutrition_target_gold
-WHERE target IS NOT NULL
-ON CONFLICT (target) DO NOTHING;
-
-INSERT INTO targets (
-    target,
-    calorie_min, calorie_max,
-    protein_min, protein_max,
-    saturated_fat_min, saturated_fat_max,
-    carb_min, carb_max,
-    fiber_min, fiber_max,
-    sugar_min, sugar_max,
-    cholesterol_min, cholesterol_max,
-    sodium_min, sodium_max,
-    calcium_min, calcium_max,
-    phosphorus_min, phosphorus_max,
-    potassium_min, potassium_max,
-    iron_min, iron_max,
-    folic_acid_min, folic_acid_max,
-    vitamin_c_min, vitamin_c_max,
-    vitamin_d_min, vitamin_d_max,
-    vitamin_b12_min, vitamin_b12_max
-)
-SELECT DISTINCT
-    target AS target,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'calorie'->>0, 'null'), '-1')::numeric AS calorie_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'calorie'->>1, 'null'), '-1')::numeric AS calorie_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'protein'->>0, 'null'), '-1')::numeric AS protein_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'protein'->>1, 'null'), '-1')::numeric AS protein_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'saturated_fat'->>0, 'null'), '-1')::numeric AS saturated_fat_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'saturated_fat'->>1, 'null'), '-1')::numeric AS saturated_fat_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'carb'->>0, 'null'), '-1')::numeric AS carb_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'carb'->>1, 'null'), '-1')::numeric AS carb_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'fiber'->>0, 'null'), '-1')::numeric AS fiber_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'fiber'->>1, 'null'), '-1')::numeric AS fiber_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'sugar'->>0, 'null'), '-1')::numeric AS sugar_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'sugar'->>1, 'null'), '-1')::numeric AS sugar_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'cholesterol'->>0, 'null'), '-1')::numeric AS cholesterol_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'cholesterol'->>1, 'null'), '-1')::numeric AS cholesterol_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'sodium'->>0, 'null'), '-1')::numeric AS sodium_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'sodium'->>1, 'null'), '-1')::numeric AS sodium_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'calcium'->>0, 'null'), '-1')::numeric AS calcium_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'calcium'->>1, 'null'), '-1')::numeric AS calcium_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'phosphorus'->>0, 'null'), '-1')::numeric AS phosphorus_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'phosphorus'->>1, 'null'), '-1')::numeric AS phosphorus_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'potassium'->>0, 'null'), '-1')::numeric AS potassium_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'potassium'->>1, 'null'), '-1')::numeric AS potassium_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'iron'->>0, 'null'), '-1')::numeric AS iron_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'iron'->>1, 'null'), '-1')::numeric AS iron_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'folic_acid'->>0, 'null'), '-1')::numeric AS folic_acid_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'folic_acid'->>1, 'null'), '-1')::numeric AS folic_acid_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_c'->>0, 'null'), '-1')::numeric AS vitamin_c_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_c'->>1, 'null'), '-1')::numeric AS vitamin_c_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_d'->>0, 'null'), '-1')::numeric AS vitamin_d_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_d'->>1, 'null'), '-1')::numeric AS vitamin_d_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_b12'->>0, 'null'), '-1')::numeric AS vitamin_b12_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_b12'->>1, 'null'), '-1')::numeric AS vitamin_b12_max
-FROM daily_food_with_nutrition_target_silver
-WHERE target IS NOT NULL
-ON CONFLICT (target) DO NOTHING;
-
-INSERT INTO targets (
-    target,
-    calorie_min, calorie_max,
-    protein_min, protein_max,
-    saturated_fat_min, saturated_fat_max,
-    carb_min, carb_max,
-    fiber_min, fiber_max,
-    sugar_min, sugar_max,
-    cholesterol_min, cholesterol_max,
-    sodium_min, sodium_max,
-    calcium_min, calcium_max,
-    phosphorus_min, phosphorus_max,
-    potassium_min, potassium_max,
-    iron_min, iron_max,
-    folic_acid_min, folic_acid_max,
-    vitamin_c_min, vitamin_c_max,
-    vitamin_d_min, vitamin_d_max,
-    vitamin_b12_min, vitamin_b12_max
-)
-SELECT DISTINCT
-    target AS target,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'calorie'->>0, 'null'), '-1')::numeric AS calorie_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'calorie'->>1, 'null'), '-1')::numeric AS calorie_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'protein'->>0, 'null'), '-1')::numeric AS protein_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'protein'->>1, 'null'), '-1')::numeric AS protein_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'saturated_fat'->>0, 'null'), '-1')::numeric AS saturated_fat_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'saturated_fat'->>1, 'null'), '-1')::numeric AS saturated_fat_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'carb'->>0, 'null'), '-1')::numeric AS carb_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'carb'->>1, 'null'), '-1')::numeric AS carb_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'fiber'->>0, 'null'), '-1')::numeric AS fiber_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'fiber'->>1, 'null'), '-1')::numeric AS fiber_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'sugar'->>0, 'null'), '-1')::numeric AS sugar_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'sugar'->>1, 'null'), '-1')::numeric AS sugar_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'cholesterol'->>0, 'null'), '-1')::numeric AS cholesterol_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'cholesterol'->>1, 'null'), '-1')::numeric AS cholesterol_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'sodium'->>0, 'null'), '-1')::numeric AS sodium_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'sodium'->>1, 'null'), '-1')::numeric AS sodium_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'calcium'->>0, 'null'), '-1')::numeric AS calcium_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'calcium'->>1, 'null'), '-1')::numeric AS calcium_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'phosphorus'->>0, 'null'), '-1')::numeric AS phosphorus_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'phosphorus'->>1, 'null'), '-1')::numeric AS phosphorus_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'potassium'->>0, 'null'), '-1')::numeric AS potassium_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'potassium'->>1, 'null'), '-1')::numeric AS potassium_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'iron'->>0, 'null'), '-1')::numeric AS iron_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'iron'->>1, 'null'), '-1')::numeric AS iron_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'folic_acid'->>0, 'null'), '-1')::numeric AS folic_acid_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'folic_acid'->>1, 'null'), '-1')::numeric AS folic_acid_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_c'->>0, 'null'), '-1')::numeric AS vitamin_c_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_c'->>1, 'null'), '-1')::numeric AS vitamin_c_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_d'->>0, 'null'), '-1')::numeric AS vitamin_d_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_d'->>1, 'null'), '-1')::numeric AS vitamin_d_max,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_b12'->>0, 'null'), '-1')::numeric AS vitamin_b12_min,
-    COALESCE(NULLIF(replace(replace(target, '''', '"'), 'None', 'null')::jsonb->'vitamin_b12'->>1, 'null'), '-1')::numeric AS vitamin_b12_max
-FROM daily_food_with_nutrition_target_bronze
-WHERE target IS NOT NULL
-ON CONFLICT (target) DO NOTHING;
-```
-
-
 ### insert users table
 ```sql
 INSERT INTO users (
@@ -646,7 +471,26 @@ WHERE daily_food_id IS NOT NULL;
 ```sql
 CREATE INDEX idx_food_user_id_grams ON food_user (food_id, grams);
 CREATE INDEX idx_food_code_id ON food_code (food_id);
+CREATE INDEX IF NOT EXISTS idx_mp_protein   ON meal_plan (protein);
+CREATE INDEX IF NOT EXISTS idx_mp_fat       ON meal_plan (saturated_fat);
+CREATE INDEX IF NOT EXISTS idx_mp_carb      ON meal_plan (carb);
+CREATE INDEX IF NOT EXISTS idx_mp_sugar     ON meal_plan (sugar);
+CREATE INDEX IF NOT EXISTS idx_mp_sodium    ON meal_plan (sodium);
+CREATE INDEX IF NOT EXISTS idx_mp_calorie   ON meal_plan (calorie);
+CREATE INDEX IF NOT EXISTS idx_mp_fiber     ON meal_plan (fiber);
+CREATE INDEX IF NOT EXISTS idx_mp_cholesterol     ON meal_plan (cholesterol);
+CREATE INDEX IF NOT EXISTS idx_mp_folic_acid     ON meal_plan (folic_acid);
+CREATE INDEX IF NOT EXISTS idx_mp_vitamin_b12     ON meal_plan (vitamin_b12);
+CREATE INDEX IF NOT EXISTS idx_mp_vitamin_c     ON meal_plan (vitamin_c);
+CREATE INDEX IF NOT EXISTS idx_mp_vitamin_d     ON meal_plan (vitamin_d);
+CREATE INDEX IF NOT EXISTS idx_mp_calcium     ON meal_plan (calcium);
+CREATE INDEX IF NOT EXISTS idx_mp_phosphorus     ON meal_plan (phosphorus);
+CREATE INDEX IF NOT EXISTS idx_mp_potassium     ON meal_plan (potassium);
+CREATE INDEX IF NOT EXISTS idx_mp_iron     ON meal_plan (iron);
+
 ```
+
+
 
 ### Backup and restore DB
 ```commandline

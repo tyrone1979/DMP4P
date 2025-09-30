@@ -27,9 +27,6 @@ sql_bronze_meal_plans = text(f"""SELECT count(*)
                            FROM   meal_plan
                            where level='bronze'
                        """)
-sql_targets = text(f"""SELECT count(*)    
-                        FROM  targets
-                    """)
 sql_male = text(f"""SELECT count(*)    
                         FROM   users
                     WHERE  gender=1
@@ -175,35 +172,28 @@ sql_query_detail_w_ids = text(f"""
                           fu.food_id
             """)
 
-sql_query_meal_plan_w_target_count =text(f"""
-                        SELECT COUNT(DISTINCT  d.daily_food_id)   
-                        FROM   meal_plan d
-                        WHERE  target IN :targets
+sql_query_food_code_std = text("""
+/* 1. 先算出每个 daily_food_id 的 8 个前缀计数 */
+WITH prefix_cnt AS (
+    SELECT
+        daily_food_id,
+		COUNT(DISTINCT eating_type) AS cnt_eating_type,
+        SUM(CASE WHEN CAST(food_id AS CHAR) LIKE '6%' OR CAST(food_id AS CHAR) LIKE '4%'  OR CAST(food_id AS CHAR) LIKE '5%' OR CAST(food_id AS CHAR) LIKE '7%' OR CAST(food_id AS CHAR) LIKE '26%' OR CAST(food_id AS CHAR) LIKE '24%' THEN 1 ELSE 0 END) AS cnt_positive,
+        SUM(CASE WHEN CAST(food_id AS CHAR) LIKE '12%' OR CAST(food_id AS CHAR) LIKE '13%' OR CAST(food_id AS CHAR) LIKE '14%' OR CAST(food_id AS CHAR) LIKE '9%'  OR CAST(food_id AS CHAR) LIKE '81%'  OR CAST(food_id AS CHAR) LIKE '20%'  OR CAST(food_id AS CHAR) LIKE '21%'  OR CAST(food_id AS CHAR) LIKE '22%'  OR CAST(food_id AS CHAR) LIKE '23%'  OR CAST(food_id AS CHAR) LIKE '25%'  OR CAST(food_id AS CHAR) LIKE '27%'  OR CAST(food_id AS CHAR) LIKE '28%'  THEN 1 ELSE 0 END) AS cnt_negative
+    	
+	FROM food_user
+    GROUP BY daily_food_id
+)
+SELECT
+    AVG(cnt_positive)          AS avg_positive,
+    STDDEV_POP(cnt_positive)   AS std_positive,
+    AVG(cnt_negative)          AS avg_negative,
+    STDDEV_POP(cnt_negative)   AS std_negative,
+	AVG(cnt_eating_type)	   AS avg_eating_type,
+	STDDEV_POP(cnt_eating_type)  AS std_eating_type
+FROM prefix_cnt
                     """)
 
-sql_query_meal_plan_w_target = text(f"""
-                        SELECT DISTINCT  d.daily_food_id,
-                                 d.calorie,
-                                 d.protein,
-                                 d.carb,
-                                 d.sugar,
-                                 d.fiber,
-                                 d.saturated_fat,
-                                 d.cholesterol,
-                                 d.folic_acid,
-                                 d.vitamin_b12,
-                                 d.vitamin_c,
-                                 d.vitamin_d,
-                                 d.calcium,
-                                 d.phosphorus,
-                                 d.potassium,
-                                 d.iron,
-                                 d.sodium,
-                                 d.level       
-                        FROM   meal_plan d
-                        WHERE  target IN :targets
-                        LIMIT 20
-                    """)
 sql_query_age_group = text("""
     SELECT 
         FLOOR(age / 10) * 10 AS age_range,
@@ -226,56 +216,3 @@ sql_food_code = text(f"""
 sql_update_food_desc_long_id =text(f"""
                 UPDATE food_code SET food_desc_long = :translated_desc WHERE food_id =:food_id
                 """)
-
-sql_query_duplicate_meal_plan = text("""
-WITH food_id_lists AS (
-    SELECT
-        mp.daily_food_id,
-        STRING_AGG(f.food_id || '|' || f.grams::text, ',') AS food_id_list
-    FROM meal_plan mp
-    JOIN food_user f ON mp.daily_food_id = f.daily_food_id::numeric
-    GROUP BY
-        mp.daily_food_id
-),
-duplicates AS (
-    SELECT
-        food_id_list,
-        ARRAY_AGG(daily_food_id) AS daily_food_ids
-    FROM
-        food_id_lists
-    GROUP BY
-        food_id_list
-    HAVING
-        COUNT(daily_food_id) > 1
-)
-SELECT
-    food_id_list,
-    daily_food_ids
-FROM
-    duplicates
-ORDER BY
-    food_id_list;
-""")
-
-sql_delete_duplicate_meal_plans=text(f"""WITH duplicate_meal_plans AS (
-    SELECT
-        daily_food_id,
-        target,
-        ROW_NUMBER() OVER (PARTITION BY daily_food_id, target ORDER BY daily_food_id) AS row_num
-    FROM
-        meal_plan
-)
-DELETE FROM meal_plan
-WHERE (daily_food_id, target) IN (
-    SELECT daily_food_id, target
-    FROM duplicate_meal_plans
-    WHERE row_num > 1
-)""")
-
-sql_query_target_w_target=text(f"""
-                SELECT DISTINCT t.target
-                FROM   targets t
-                JOIN meal_plan mp ON mp.target=t.target
-                WHERE mp.daily_food_id='21037202510'
-""")
-
