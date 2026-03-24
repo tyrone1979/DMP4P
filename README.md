@@ -1,7 +1,7 @@
 # DMP4P - Daily Meal Plan Recommendation for Personal nutrition requirement
 
 
-[Online example](http://rec.nri.neusoft.edu.cn/)
+[Online example](https://rec.nri.neusoft.edu.cn/)
 
 Get data at https://doi.org/10.6084/m9.figshare.30153778
 
