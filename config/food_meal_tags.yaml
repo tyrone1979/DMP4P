@@ -1,0 +1,136 @@
+# Multi-label meal tags for Bronze candidate foods.
+# A food_id may carry several of: breakfast, lunch, dinner, snack.
+# Bronze only draws breakfast items from foods tagged breakfast, etc.
+
+version: "food_meal_tags_v1"
+meals: [breakfast, lunch, dinner, snack]
+
+# Empirical tags from NHANES food_user occasion counts
+empirical:
+  enabled: true
+  # among a food's observed meal rows, add tag if count >= min_count AND share >= min_share
+  min_count: 3
+  min_share: 0.08
+  # if a food is rare overall, still tag the mode meal
+  always_tag_mode: true
+
+# Keyword rules applied after empirical (override / restrict)
+# force_only: final tags become exactly this set (intersection with empirical if require_empirical_hit)
+rules:
+  # oats → breakfast only
+  - name: oats_breakfast_only
+    keywords: [oatmeal, "oats, raw", "oats,", "oat bran", porridge]
+    force_only: [breakfast]
+
+  # RTE cereal / crackers / puffed → breakfast + snack (not L/D)
+  - name: rte_cereal_bf_snack
+    keywords:
+      - cereal
+      - "shredded wheat"
+      - granola
+      - muesli
+      - matzo
+      - "crackers,"
+      - "cracker,"
+      - cracker
+      - "wheat germ"
+      - bran
+      - flakes
+      - cheerios
+      - frosted
+      - pancake
+      - waffle
+      - bagel
+      - "breakfast bar"
+      - puffed
+      - popcorn
+      - "fiber one"
+      - kashi
+      - "bread stick"
+      - breadstick
+    force_only: [breakfast, snack]
+
+  # Potato / corn / tortilla chips & salty crisps → snack only (not B/L/D mains)
+  - name: salty_chips_snack_only
+    keywords:
+      - "potato, chips"
+      - "potato chips"
+      - "white potato, chips"
+      - "corn chips"
+      - "tortilla chips"
+      - "shrimp chips"
+      - "multigrain chips"
+      - "apple chips"
+      - "banana chips"
+      - "corn-cheese chips"
+      - "wheat-and corn-based chips"
+      - "vegetable chips"
+      - "pita chips"
+      - "pita chip"
+      - "plantain chips"
+      - "kale chips"
+      - "salty snacks, corn"
+      - "salty snacks, wheat"
+      - "salty snacks, multigrain"
+      - "salty snack mixture"
+      - "salty snacks,"
+      - pretzel
+      - pretzels
+      - "cheese flavored corn snack"
+      - cheetos
+      - "pork rinds"
+      - "pork skin rinds"
+      - "pork skins"
+      - "corn nuts"
+      - "cheese puffs"
+      - "cheese puff"
+    force_only: [snack]
+
+  # Loaf bread → breakfast/lunch/dinner (not snack)
+  - name: loaf_bread_mains
+    keywords:
+      - "bread, white"
+      - "bread, wheat"
+      - "bread, whole"
+      - "bread, rye"
+      - "bread, oatmeal"
+      - "bread, multigrain"
+      - "bread, sour dough"
+      - "bread, sourdough"
+      - "bread, french"
+      - "bread, italian"
+      - "bread, pita"
+      - "bread, naan"
+      - "bread, flatbread"
+    force_only: [breakfast, lunch, dinner]
+
+  # Cooking oils → lunch + dinner + snack (seasoning), not breakfast main
+  - name: oils_not_breakfast
+    keywords: [olive oil, vegetable oil, corn oil, canola oil, "oil, nfs", rapeseed oil, coconut oil, soybean oil]
+    force_only: [lunch, dinner, snack]
+
+  # Eggs / breakfast meats often multi
+  - name: egg_bf_lunch
+    keywords: ["egg,", "eggs,", omelet, omelette]
+    force_add: [breakfast, lunch]
+
+  # Major protein → lunch + dinner (+ snack leftovers ok)
+  - name: protein_ld
+    keywords: [chicken, beef, pork, turkey, fish, salmon, trout, tuna, shrimp, tofu, steak, chop]
+    force_add: [lunch, dinner]
+
+  # Fruit → breakfast + snack primarily
+  - name: fruit_bf_snack
+    keywords: [apple, banana, orange, berry, berries, grape, melon, peach, pear, mango, guava, papaya]
+    force_add: [breakfast, snack]
+
+  # Nuts/seeds → snack (+ breakfast ok)
+  - name: nuts_snack
+    keywords: [almond, walnut, peanut, peanuts, pistachio, cashew, pecan, sunflower seed, pumpkin seed, trail mix]
+    force_add: [snack, breakfast]
+
+# If after rules a food has no tags, fall back to empirical mode or all meals
+fallback_tags: [breakfast, lunch, dinner, snack]
+
+paths:
+  out_csv: data/nhanes/data/food_meal_tags.csv

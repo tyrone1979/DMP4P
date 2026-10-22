@@ -1,0 +1,188 @@
+# Equivalent food replacement (reusable)
+# Modes:
+#   1) code_repair — uncoded / retired FNDDS → modern FPED-coded foods (same-category bias)
+#   2) avoidance  — user忌口 / allergy: cross-category substitutes that avoid forbidden foods
+
+version: "1.0"
+
+# What makes a food "coded" / eligible as a replacement target
+coded_set:
+  # Prefer union of these FPED tables (FOODCODE column)
+  fped_csvs:
+    - data/fped/FPED_1720.csv
+    - data/fped/FPED_1718.csv
+    - data/fped/FPED_1516.csv
+  # Chain USDA discontinued-code crosswalks before declaring "uncoded"
+  use_official_discontinued_maps: true
+  discontinued_dir: data/fndds_discontinued
+  discontinued_files:
+    - disc_0910_1112.xlsx
+    - disc_1112_1314.xlsx
+    - disc_1314_1516.xlsx
+    - disc_1516_1718.xlsx
+    - disc_1718_1920.xlsx
+
+nutrition:
+  food_nutrition_csv: data/nhanes/food_nutrition.csv
+  food_code_csv: data/nhanes/food_code.csv
+  # Nutrients used for similarity (per 100 g density)
+  features:
+    - calorie
+    - protein
+    - carb
+    - sugar
+    - fiber
+    - saturated_fat
+    - cholesterol
+    - folic_acid
+    - vitamin_b12
+    - vitamin_c
+    - vitamin_d
+    - calcium
+    - phosphorus
+    - potassium
+    - iron
+    - sodium
+  # Log1p then z-score across coded pool before distance
+  transform: log1p_zscore
+  min_grams_for_density: 1.0
+
+similarity:
+  metric: cosine   # cosine | euclidean
+  # Prefer same FNDDS major group (1st digit), then 2-digit subgroup
+  prefer_same_major_group: true
+  prefer_same_subgroup2: true
+  major_group_penalty: 0.35   # added to distance if major group differs
+  subgroup2_penalty: 0.10
+  top_k: 8
+  max_distance: 0.85          # reject if best cosine-distance (1-sim) above this
+
+# Cross-category / 忌口 replacement (milk → plant milk, etc.)
+avoidance:
+  # When cross_category=true: do NOT penalize different major groups;
+  # optionally boost preferred keywords / groups.
+  cross_category_default: true
+  preferred_keyword_bonus: -0.25   # subtracted from distance (closer)
+  preferred_major_bonus: -0.05
+  top_k: 12
+  max_distance: 1.05              # allow farther matches across categories
+  # If source looks like a beverage milk, prefer candidates matching preferred_keywords
+  require_preferred_for_keywords:
+    - milk
+    - latte
+    - yogurt
+    - cheese
+  presets:
+    # Animal dairy / cow's milk products — plant milks often still coded in group 1
+    dairy:
+      description: "Avoid cow's-milk dairy; prefer plant / non-dairy substitutes"
+      forbid_major_groups: []
+      forbid_subgroup2: []
+      forbid_food_ids: []
+      forbid_keywords:
+        - milk
+        - "milk, cow"
+        - "cow's"
+        - buttermilk
+        - cheese
+        - yogurt
+        - "sour cream"
+        - "cream cheese"
+        - "ice cream"
+        - "ice milk"
+        - butter
+        - whey
+        - "dairy drink"
+        - latte
+        - cappuccino
+        - "cafe mocha"
+        - macchiato
+        - milkshake
+        - "hot chocolate"
+        - "chocolate milk"
+        - "whole milk"
+        - "reduced fat milk"
+        - "lowfat milk"
+        - "nonfat milk"
+        - "2% milk"
+        - "1% milk"
+        - "skim milk"
+        - "milk, nfs"
+        - "milk, n.s"
+      # If desc matches any allow keyword, do NOT treat as forbidden
+      allow_keywords:
+        - almond milk
+        - soy milk
+        - rice milk
+        - oat milk
+        - coconut milk
+        - cashew milk
+        - hemp milk
+        - "non-dairy"
+        - nondairy
+        - "milk substitute"
+        - "plant-based"
+        - "with non-dairy milk"
+      preferred_keywords:
+        - almond milk
+        - soy milk
+        - rice milk
+        - oat milk
+        - coconut milk
+        - "non-dairy milk"
+        - nondairy
+      preferred_major_groups: []
+    peanut:
+      description: "Avoid peanut / peanut butter"
+      forbid_keywords:
+        - peanut
+      allow_keywords: []
+      preferred_keywords:
+        - almond butter
+        - sunflower
+        - soy nut
+      preferred_major_groups: []
+    shellfish:
+      description: "Avoid shellfish"
+      forbid_keywords:
+        - shrimp
+        - crab
+        - lobster
+        - clam
+        - oyster
+        - mussel
+        - scallop
+        - shellfish
+        - crayfish
+      allow_keywords: []
+      preferred_keywords:
+        - fish
+        - chicken
+        - tofu
+      preferred_major_groups: [2, 4]
+
+replacement:
+  # Scale grams so replaced item keeps similar calorie contribution
+  scale_by: calorie
+  grams_min: 5.0
+  grams_max: 800.0
+  # HARD CONSTRAINT: after every remap, ALL nutrients in target must stay in [L, U]
+  hard_target: true
+  repair_target: true
+  repair_max_rounds: 24
+  repair_gram_scale_lo: 0.70
+  repair_gram_scale_hi: 1.30
+  # Hard mode uses ~0 slack (float eps only)
+  nutrient_tol_rel: 0.0
+  nutrient_tol_abs: 1.0e-6
+  # When choosing a replacement, try up to this many candidates for a feasible day
+  feasible_candidate_tries: 20
+  # Gram search factors when testing a candidate under hard target
+  feasible_gram_factors: [1.0, 0.9, 0.8, 0.7, 1.1, 1.2]
+  # Upper bounds above this are treated as +inf (e.g. fiber 9999999)
+  infinite_upper: 1.0e7
+
+audit:
+  keep_original_food_id_col: food_id_original
+  keep_method_col: replace_method
+  keep_distance_col: replace_distance

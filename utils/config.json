@@ -6,6 +6,71 @@
   "micro_nutrients": ["sodium", "phosphorus", "potassium", "iron", "calcium", "folic_acid", "vitamin_c",
                 "vitamin_d", "vitamin_b12"],
 
+  "thresholds": {
+    "fiber": { "1": { "low": 31, "high": 38 }, "2": { "low": 21, "high": 25 } },
+    "sugar": { "1": { "low": 36, "high": 50 }, "2": { "low": 25, "high": 50 } },
+    "cholesterol": { "1": { "low": 200, "high": 300 }, "2": { "low": 200, "high": 300 } },
+    "sodium": { "1": { "low": 1500, "high": 2000 }, "2": { "low": 1500, "high": 2000 } },
+    "calcium": { "1": { "low": 1000, "high": 2500 }, "2": { "low": 1000, "high": 2500 } },
+    "phosphorus": { "1": { "low": 700, "high": 4000 }, "2": { "low": 700, "high": 4000 } },
+    "potassium": { "1": { "low": 3400 }, "2": { "low": 2600 } },
+    "iron": { "1": { "low": 8, "high": 45 }, "2": { "low": 18, "high": 45 } },
+    "folic_acid": { "1": { "low": 400, "high": 1000 }, "2": { "low": 400, "high": 1000 } },
+    "vitamin_c": { "1": { "low": 90, "high": 2000 }, "2": { "low": 75, "high": 2000 } },
+    "vitamin_d": { "1": { "low": 15, "high": 100 }, "2": { "low": 15, "high": 100 } },
+    "vitamin_b12": { "1": { "low": 2.4 }, "2": { "low": 2.4 } },
+    "calorie_floor_weight_loss": { "1": 1500, "2": 1200 }
+  },
+  "bounds_policy": {
+    "version": "reviewer-aligned-v2",
+    "authorities": [
+      "US-DRI (IOM/NASEM RDA/AI/UL/AMDR/EER)",
+      "WHO SFA guideline 2023 (<10%E saturated fat)",
+      "WHO healthy diet / population fiber goal (>=25 g/day)",
+      "WHO sodium guideline (<2000 mg/day)",
+      "WHO free sugars (<10%E; AHA absolute caps for high-risk groups)",
+      "US-DGA 2020-2025 (<10%E saturated fat; sodium CDRR context)"
+    ],
+    "calorie_floor_obesity": "Outpatient weight-loss floor: 1500 kcal/day (men) / 1200 kcal/day (women); not a medically supervised VLCD.",
+    "iron_bioavailability": "Bounds use total dietary iron matching US RDA values that already assume mixed-diet bioavailability. No separate heme vs non-heme factor is applied. Anemia plans co-constrain vitamin C to support non-heme iron absorption.",
+    "protein_default": "US RDA 0.8 g/kg as LOWER bound; AMDR 35%E as UPPER bound (was incorrectly inverted in v1).",
+    "fiber_default": "max(WHO 25 g/day, US AI by sex/age) as LOWER bound for all adults.",
+    "saturated_fat_default": "WHO/US-DGA <10% of total energy for all adults; tighter ~6%E (AHA-style 13 g/@2000 kcal) for obesity / low-saturated-fat preference.",
+    "micronutrient_default": "RDA/AI as LOWER; UL when an official UL exists; no engineering upper when no UL (K, B12).",
+    "conflict_resolution": "Per nutrient, first matching condition in target_range_logic wins (JSON key order). See docs/nutrient_ranges_by_condition_v2.md.",
+    "reviewer_response": "Addresses Reviewer1/2 Table 5 comments on calorie floor, fiber minimum, protein semantics, SFA cap for others, micronutrient minima for others, and iron bioavailability documentation.",
+    "bibliography": "manuscript/v1/nutrient_bounds_references.bib",
+    "citation_table": "manuscript/v1/nutrient_bounds_citations.tex",
+    "citation_audit": "docs/nutrient_bounds_citation_audit.md",
+    "citation_map": "docs/nutrient_range_citation_map.csv",
+    "range_catalog": "docs/nutrient_ranges_by_condition_v2.md",
+    "verify_script": "scripts/verify_nutrient_bound_citations.py",
+    "cite_keys_by_nutrient": {
+      "calorie_default": ["IOM2005Macro", "Trumbo2002DRI"],
+      "calorie_weight_loss_floor": ["Jensen2014Obesity", "Raynor2016ANDObesity"],
+      "carb": ["IOM2005Macro", "USDHHSDGA2020", "Evert2019ADA"],
+      "protein_default": ["IOM2005Macro", "Trumbo2002DRI"],
+      "protein_ckd_cap": ["Ikizler2020KDOQI"],
+      "fiber": ["WHO2023CHO", "IOM2005Macro"],
+      "saturated_fat_default": ["WHO2023SFA", "USDHHSDGA2020"],
+      "saturated_fat_heart": ["Eckel2013AHALifestyle", "AHASaturatedFatWeb"],
+      "sugar_default": ["WHO2015Sugar", "USDHHSDGA2020"],
+      "sugar_high_risk": ["Johnson2009AHASugar", "Evert2019ADA"],
+      "cholesterol_default": ["USDADGA2010", "USDHHSDGA2020"],
+      "cholesterol_ldl": ["NCEPATPIII2002", "Eckel2013AHALifestyle"],
+      "sodium_default": ["WHO2012Sodium"],
+      "sodium_htn": ["NASEM2019NaK", "Whelton2018HTN", "Evert2019ADA"],
+      "potassium": ["NASEM2019NaK", "WHO2012Potassium", "Whelton2018HTN"],
+      "phosphorus": ["IOM1997CaP", "IOM2006EssentialGuide", "Ikizler2020KDOQI"],
+      "iron": ["IOM2001Micronutrients", "IOM2006EssentialGuide"],
+      "calcium": ["IOM2011CaVD"],
+      "folic_acid": ["IOM1998FolateB12", "IOM2006EssentialGuide"],
+      "vitamin_c": ["IOM2000VitaminC", "IOM2006EssentialGuide", "IOM2001Micronutrients"],
+      "vitamin_d": ["IOM2011CaVD"],
+      "vitamin_b12": ["IOM1998FolateB12"],
+      "opioid_context": ["Mahboub2021OpioidNutrition"]
+    }
+  },
   "food_categories": {
     "7": { "score": 1, "type": "positive" },
     "6": { "score": 1, "type": "positive" },
@@ -43,21 +108,21 @@
     "blood_pressure": ["sodium", "potassium"],
     "low_density_lipoprotein": ["fiber"],
     "blood_urea_nitrogen": [],
-    "diabetes": ["sugar", "sodium"],
+    "diabetes": ["sugar", "sodium", "fiber"],
     "anemia": ["iron", "vitamin_c", "folic_acid", "vitamin_b12"],
     "osteoporosis": ["calcium", "vitamin_d", "vitamin_c"],
     "opioid_misuse": ["fiber", "sugar", "sodium"],
     "user_low_phosphorus": ["phosphorus"],
-    "user_low_saturated_fat": [],
-    "user_low_carb": [],
-    "user_low_calorie": [],
-    "user_low_cholesterol": [],
+    "user_low_saturated_fat": ["saturated_fat"],
+    "user_low_carb": ["carb"],
+    "user_low_calorie": ["calorie"],
+    "user_low_cholesterol": ["cholesterol"],
     "user_low_sugar": ["sugar"],
-    "user_high_calorie": [],
-    "user_low_protein": [],
+    "user_high_calorie": ["calorie"],
+    "user_low_protein": ["protein"],
     "user_low_sodium": ["sodium"],
     "user_high_potassium": ["potassium"],
-    "user_high_protein": [],
+    "user_high_protein": ["protein"],
     "user_high_fiber": ["fiber"],
     "user_high_folate_acid": ["folic_acid"],
     "user_high_iron": ["iron"],
@@ -66,24 +131,54 @@
     "user_high_vitamin_c": ["vitamin_c"],
     "user_high_vitamin_d": ["vitamin_d"]
   },
-  "essentional_nutritions": ["calorie", "protein", "carb", "saturated_fat", "cholesterol"],
-  "MET_and_EER": {
-    "MET": "1 if level == 1 else 1.11 if gender == '1' and level == 2 else 1.25 if gender == '1' and level == 3 else 1.48 if gender == '1' and level == 4 else 1.48 if gender == '1' else 1.12 if gender == '2' and level == 2 else 1.27 if gender == '2' and level == 3 else 1.45 if gender == '2' and level == 4 else 1.45",
-    "EER": "662 + -9.53 * age + met*( 15.91* weight + 5.396 * height) if gender == '1' else 354 + -6.91 * age + met*( 9.36 * weight + 7.26 * height)"
+  "essentional_nutritions": [
+    "calorie", "protein", "carb", "fiber", "saturated_fat", "sugar", "cholesterol",
+    "sodium", "phosphorus", "potassium", "iron", "calcium", "folic_acid",
+    "vitamin_c", "vitamin_d", "vitamin_b12"
+  ],
+  "cal_MET": {
+    "default_level_1": 1,
+    "male": {
+      "level_2": 1.11,
+      "level_3": 1.25,
+      "level_4": 1.48,
+      "default": 1.11
+    },
+    "female": {
+      "level_2": 1.12,
+      "level_3": 1.27,
+      "level_4": 1.45,
+      "default": 1.12
+    }
+  },
+  "calc_EER": {
+    "male": {
+      "base": 662,
+      "age_factor": -9.53,
+      "weight_factor": 15.91,
+      "height_factor": 5.396
+    },
+    "female": {
+      "base": 354,
+      "age_factor": -6.91,
+      "weight_factor": 9.36,
+      "height_factor": 7.26
+    }
   },
 
   "target_logic": {
     "calorie": {
         "conditions": {
-            "default":"EER"
+            "default": "EER"
         }
     },
     "fiber": {
         "conditions": {
-            "opioid_misuse":            "38 if gender == '1' and age <= 50 else 25 if gender == '2' and age <= 50 else 31 if gender == '1' else 21",
-            "low_density_lipoprotein":  "38 if gender == '1' and age <= 50 else 25 if gender == '2' and age <= 50 else 31 if gender == '1' else 21",
-            "user_high_fiber":          "38 if gender == '1' and age <= 50 else 25 if gender == '2' and age <= 50 else 31 if gender == '1' else 21",
-            "default": "INFINITY"
+            "opioid_misuse": "max(25, thresholds['fiber'][gender]['high'] if age <= 50 else thresholds['fiber'][gender]['low'])",
+            "low_density_lipoprotein": "max(25, thresholds['fiber'][gender]['high'] if age <= 50 else thresholds['fiber'][gender]['low'])",
+            "diabetes": "max(25, thresholds['fiber'][gender]['high'] if age <= 50 else thresholds['fiber'][gender]['low'])",
+            "user_high_fiber": "max(25, thresholds['fiber'][gender]['high'] if age <= 50 else thresholds['fiber'][gender]['low'])",
+            "default": "max(25, thresholds['fiber'][gender]['high'] if age <= 50 else thresholds['fiber'][gender]['low'])"
         }
     },
     "carb": {
@@ -95,106 +190,119 @@
     },
     "protein": {
         "conditions": {
+            "blood_urea_nitrogen": "math.ceil(weight * 0.8)",
+            "user_low_protein": "math.ceil(weight * 0.8)",
             "default": "math.ceil(weight * 0.8)"
         }
     },
     "saturated_fat": {
         "conditions": {
-            "default": "math.ceil(EER / 2000.0 * 13.0)"
+            "over_weight": "math.ceil(EER / 2000.0 * 13.0)",
+            "user_low_saturated_fat": "math.ceil(EER / 2000.0 * 13.0)",
+            "low_density_lipoprotein": "math.ceil(EER / 2000.0 * 13.0)",
+            "default": "math.ceil(EER * 0.10 / 9.0)"
         }
     },
     "sugar": {
       "conditions": {
-            "over_weight":    "36 if gender == '1' else 25",
-            "diabetes":       "36 if gender == '1' else 25",
-            "opioid_misuse": "36 if gender == '1' else 25",
-            "user_low_sugar": "36 if gender == '1' else 25",
-            "default":        "50"
+            "over_weight": "thresholds['sugar'][gender]['low']",
+            "diabetes":"thresholds['sugar'][gender]['low']",
+            "opioid_misuse": "thresholds['sugar'][gender]['low']",
+            "user_low_sugar": "thresholds['sugar'][gender]['low']",
+            "default": "EER * 0.10 / 4.0"
         }
     },
     "cholesterol": {
       "conditions": {
-        "low_density_lipoprotein": "200",
-        "user_low_cholesterol": "200",
-        "default": "300"
+        "low_density_lipoprotein": "thresholds['cholesterol'][gender]['low']",
+        "user_low_cholesterol": "thresholds['cholesterol'][gender]['low']",
+        "default": "thresholds['cholesterol'][gender]['high']"
       }
     },
 
     "sodium": {
         "conditions": {
-            "blood_pressure":   "1500",
-            "diabetes":         "1500",
-            "opioid_misuse":    "1500",
-            "user_low_sodium":  "1500",
-            "default":          "2300"
+            "blood_pressure":   "thresholds['sodium'][gender]['low']",
+            "diabetes":         "thresholds['sodium'][gender]['low']",
+            "opioid_misuse":    "thresholds['sodium'][gender]['low']",
+            "user_low_sodium":  "thresholds['sodium'][gender]['low']",
+            "default":          "thresholds['sodium'][gender]['high']"
         }
     },
     "phosphorus": {
         "conditions": {
-            "user_low_phosphorus": "700",
-            "default": "4000 if gender == '1' else 3000"
+            "user_low_phosphorus": "thresholds['phosphorus'][gender]['low']",
+            "default": "thresholds['phosphorus'][gender]['low']"
         }
     },
-
     "potassium": {
         "conditions": {
-            "blood_pressure":  "2600 if gender == '2' else 3400",
-            "default": "5000"
+            "blood_pressure": "thresholds['potassium'][gender]['low']",
+            "user_high_potassium": "thresholds['potassium'][gender]['low']",
+            "default": "thresholds['potassium'][gender]['low']"
         }
     },
     "iron": {
         "conditions": {
-            "anemia": "18 if gender == '2' else 8",
-            "default": "45"
+            "anemia": "8 if gender == '1' or age > 50 else 18",
+            "user_high_iron": "8 if gender == '1' or age > 50 else 18",
+            "default": "8 if gender == '1' or age > 50 else 18"
         }
     },
-
     "calcium": {
         "conditions": {
-            "osteoporosis": "1200 if gender == '2' else 1000",
-            "default": "2500 if gender == '1' else 2000"
+            "osteoporosis": "1200",
+            "user_high_calcium": "1000 if (gender == '1' and age < 71) or (gender == '2' and age < 51) else 1200",
+            "default": "1000 if (gender == '1' and age < 71) or (gender == '2' and age < 51) else 1200"
         }
     },
     "folic_acid": {
         "conditions": {
-            "anemia": "400",
-            "default": "1000"
+            "anemia": "thresholds['folic_acid'][gender]['low']",
+            "user_high_folate_acid": "thresholds['folic_acid'][gender]['low']",
+            "default": "thresholds['folic_acid'][gender]['low']"
         }
     },
-
     "vitamin_c": {
         "conditions": {
-            "default": "2000"
+            "anemia": "thresholds['vitamin_c'][gender]['low']",
+            "osteoporosis": "thresholds['vitamin_c'][gender]['low']",
+            "user_high_vitamin_c": "thresholds['vitamin_c'][gender]['low']",
+            "default": "thresholds['vitamin_c'][gender]['low']"
         }
     },
     "vitamin_d": {
         "conditions": {
-           "osteoporosis": "20 if gender == '2' else 15",
-            "default": "100"
+            "osteoporosis": "20 if age > 70 else 15",
+            "user_high_vitamin_d": "20 if age > 70 else 15",
+            "default": "20 if age > 70 else 15"
         }
     },
     "vitamin_b12": {
         "conditions": {
-            "anemia": "0",
-            "default": "2.4"
+            "anemia": "thresholds['vitamin_b12'][gender]['low']",
+            "user_high_vitamin_b12": "thresholds['vitamin_b12'][gender]['low']",
+            "default": "thresholds['vitamin_b12'][gender]['low']"
         }
     }
   },
   "target_range_logic": {
     "calorie": {
         "conditions": {
-            "over_weight": "[0, math.ceil(EER * 1.1 / 100) * 100]",
+            "over_weight": "[thresholds['calorie_floor_weight_loss'][gender], max(thresholds['calorie_floor_weight_loss'][gender], math.ceil(EER * 1.1 / 100) * 100)]",
             "under_weight": "[math.floor(calc_EER(gender, age, height, weight, 1) * 0.9 / 100) * 100, math.ceil(EER * 1.1 / 100) * 100]",
-            "user_low_calorie": "[0, math.ceil(EER * 1.1 / 100) * 100]",
+            "user_low_calorie": "[thresholds['calorie_floor_weight_loss'][gender], max(thresholds['calorie_floor_weight_loss'][gender], math.ceil(EER * 1.1 / 100) * 100)]",
+            "user_high_calorie": "[math.floor(calc_EER(gender, age, height, weight, 1) * 0.9 / 100) * 100, math.ceil(EER * 1.1 / 100) * 100]",
             "default": "[math.floor(calc_EER(gender, age, height, weight, 1) * 0.9 / 100) * 100, math.ceil(EER * 1.1 / 100) * 100]"
         }
     },
     "fiber": {
         "conditions": {
-            "opioid_misuse":            "[38, 99999] if gender == '1' and age <= 50 else [25, 99999] if gender == '2' and age <= 50 else [31, 99999] if gender == '1' else [21, 99999]",
-            "low_density_lipoprotein":  "[38, 99999] if gender == '1' and age <= 50 else [25, 99999] if gender == '2' and age <= 50 else [31, 99999] if gender == '1' else [21, 99999]",
-            "user_high_fiber":          "[38, 99999] if gender == '1' and age <= 50 else [25, 99999] if gender == '2' and age <= 50 else [31, 99999] if gender == '1' else [21, 99999]",
-            "default":                  "[0, INFINITY]"
+            "opioid_misuse": "[max(25, thresholds['fiber'][gender]['high'] if age <= 50 else thresholds['fiber'][gender]['low']), INFINITY]",
+            "low_density_lipoprotein": "[max(25, thresholds['fiber'][gender]['high'] if age <= 50 else thresholds['fiber'][gender]['low']), INFINITY]",
+            "diabetes": "[max(25, thresholds['fiber'][gender]['high'] if age <= 50 else thresholds['fiber'][gender]['low']), INFINITY]",
+            "user_high_fiber": "[max(25, thresholds['fiber'][gender]['high'] if age <= 50 else thresholds['fiber'][gender]['low']), INFINITY]",
+            "default": "[max(25, thresholds['fiber'][gender]['high'] if age <= 50 else thresholds['fiber'][gender]['low']), INFINITY]"
         }
     },
     "carb": {
@@ -207,99 +315,106 @@
     "protein": {
         "conditions": {
             "blood_urea_nitrogen": "[0, math.ceil((weight * 0.8) / 10) * 10]",
-            "opioid_misuse": "[math.ceil((weight * 0.8) / 10) * 10, INFINITY]",
             "user_low_protein": "[0, math.ceil((weight * 0.8) / 10) * 10]",
-            "user_high_protein": "[math.ceil((weight * 0.8) / 10) * 10, INFINITY]",
-            "default": "[0, math.ceil((weight * 0.8) / 10) * 10]"
+            "opioid_misuse": "[math.ceil((weight * 0.8) / 10) * 10, max(math.ceil((weight * 0.8) / 10) * 10, math.ceil((EER * 0.35 / 4.0) / 10) * 10)]",
+            "user_high_protein": "[math.ceil((weight * 0.8) / 10) * 10, max(math.ceil((weight * 0.8) / 10) * 10, math.ceil((EER * 0.35 / 4.0) / 10) * 10)]",
+            "default": "[math.ceil((weight * 0.8) / 10) * 10, max(math.ceil((weight * 0.8) / 10) * 10, math.ceil((EER * 0.35 / 4.0) / 10) * 10)]"
         }
     },
     "saturated_fat": {
         "conditions": {
-            "over_weight": "[0,math.ceil((EER / 2000.0 * 13.0) / 5) * 5]",
-            "user_low_saturated_fat": "[0,math.ceil((EER / 2000.0 * 13.0) / 5) * 5]",
-            "default": "[0, INFINITY]"
+            "over_weight": "[0, math.ceil((EER / 2000.0 * 13.0) / 5) * 5]",
+            "user_low_saturated_fat": "[0, math.ceil((EER / 2000.0 * 13.0) / 5) * 5]",
+            "low_density_lipoprotein": "[0, math.ceil((EER / 2000.0 * 13.0) / 5) * 5]",
+            "default": "[0, math.ceil((EER * 0.10 / 9.0) / 5) * 5]"
         }
     },
     "sugar": {
       "conditions": {
-            "over_weight":    "[0, 36 if gender == '1' else 25]",
-            "diabetes":       "[0, 36 if gender == '1' else 25]",
-            "opioid_misuse":  "[0, 36 if gender == '1' else 25]",
-            "user_low_sugar": "[0, 36 if gender == '1' else 25]",
-            "default":        "[36 if gender == '1' else 25, 50]"
+            "over_weight": "[0, thresholds['sugar'][gender]['low']]",
+            "diabetes": "[0, thresholds['sugar'][gender]['low']]",
+            "opioid_misuse": "[0, thresholds['sugar'][gender]['low']]",
+            "user_low_sugar": "[0, thresholds['sugar'][gender]['low']]",
+            "default": "[0, math.ceil((EER * 0.10 / 4.0) / 5) * 5]"
         }
     },
     "cholesterol": {
       "conditions": {
-        "low_density_lipoprotein": "[0, 200]",
-        "user_low_cholesterol":   "[0, 200]",
-        "default": "[0, 300]"
+        "low_density_lipoprotein": "[0, thresholds['cholesterol'][gender]['low']]",
+        "user_low_cholesterol": "[0, thresholds['cholesterol'][gender]['low']]",
+        "default": "[0, thresholds['cholesterol'][gender]['high']]"
       }
     },
 
     "sodium": {
         "conditions": {
-            "blood_pressure": "[0, 1500]",
-            "diabetes": "[0, 1500]",
-            "opioid_misuse": "[0, 1500]",
-            "user_low_sodium": "[0, 1500]",
-            "default": "[1500, 2300]"
+            "blood_pressure": "[0, thresholds['sodium'][gender]['low']]",
+            "diabetes": "[0, thresholds['sodium'][gender]['low']]",
+            "opioid_misuse": "[0, thresholds['sodium'][gender]['low']]",
+            "user_low_sodium": "[0, thresholds['sodium'][gender]['low']]",
+            "default": "[0, thresholds['sodium'][gender]['high']]"
         }
     },
     "phosphorus": {
         "conditions": {
-            "user_low_phosphorus": "[0, 700]",
-            "default": "[700, 4000 if gender == '1' else 3000]"
+            "user_low_phosphorus": "[0, thresholds['phosphorus'][gender]['low']]",
+            "default": "[thresholds['phosphorus'][gender]['low'], 4000 if age <= 70 else 3000]"
         }
     },
     "potassium": {
         "conditions": {
-            "blood_pressure": "[2600 if gender == '2' else 3400, 5000]",
-            "default": "[0, 5000]"
+            "blood_pressure": "[thresholds['potassium'][gender]['low'], INFINITY]",
+            "user_high_potassium": "[thresholds['potassium'][gender]['low'], INFINITY]",
+            "default": "[thresholds['potassium'][gender]['low'], INFINITY]"
         }
     },
     "iron": {
         "conditions": {
-             "anemia": "[18 if gender == '2' else 8, 45]",
-            "default": "[0, 45]"
+            "anemia": "[8 if gender == '1' or age > 50 else 18, thresholds['iron'][gender]['high']]",
+            "user_high_iron": "[8 if gender == '1' or age > 50 else 18, thresholds['iron'][gender]['high']]",
+            "default": "[8 if gender == '1' or age > 50 else 18, thresholds['iron'][gender]['high']]"
         }
     },
     "calcium": {
         "conditions": {
-            "osteoporosis": "[1200 if gender == '2' else 1000, 2500 if gender == '1' else 2000]",
-            "default": "[0, 2500 if gender == '1' else 2000]"
+            "osteoporosis": "[1200, 2000 if age >= 51 else 2500]",
+            "user_high_calcium": "[1000 if (gender == '1' and age < 71) or (gender == '2' and age < 51) else 1200, 2000 if age >= 51 else 2500]",
+            "default": "[1000 if (gender == '1' and age < 71) or (gender == '2' and age < 51) else 1200, 2000 if age >= 51 else 2500]"
         }
     },
     "folic_acid": {
         "conditions": {
-            "anemia": "[400, 1000]",
-            "default": "[0, 1000]"
+            "anemia": "[thresholds['folic_acid'][gender]['low'], thresholds['folic_acid'][gender]['high']]",
+            "user_high_folate_acid": "[thresholds['folic_acid'][gender]['low'], thresholds['folic_acid'][gender]['high']]",
+            "default": "[thresholds['folic_acid'][gender]['low'], thresholds['folic_acid'][gender]['high']]"
         }
     },
     "vitamin_c": {
         "conditions": {
-            "anemia": "[90 if gender == '1' else 75, 2000]",
-            "osteoporosis": "[90 if gender == '1' else 75, 2000]",
-            "user_high_vitamin_c": "[90 if gender == '1' else 75, 2000]",
-            "default": "[0, 2000]"
+            "anemia": "[thresholds['vitamin_c'][gender]['low'], thresholds['vitamin_c'][gender]['high']]",
+            "osteoporosis": "[thresholds['vitamin_c'][gender]['low'], thresholds['vitamin_c'][gender]['high']]",
+            "user_high_vitamin_c": "[thresholds['vitamin_c'][gender]['low'], thresholds['vitamin_c'][gender]['high']]",
+            "default": "[thresholds['vitamin_c'][gender]['low'], thresholds['vitamin_c'][gender]['high']]"
         }
     },
     "vitamin_d": {
         "conditions": {
-           "osteoporosis": "[20 if gender == '2' else 15, 100]",
-           "default": "[0, 100]"
+            "osteoporosis": "[20 if age > 70 else 15, thresholds['vitamin_d'][gender]['high']]",
+            "user_high_vitamin_d": "[20 if age > 70 else 15, thresholds['vitamin_d'][gender]['high']]",
+            "default": "[20 if age > 70 else 15, thresholds['vitamin_d'][gender]['high']]"
         }
     },
     "vitamin_b12": {
         "conditions": {
-            "anemia": "[0, 2.4]",
-            "default": "[0, 2.4]"
+            "anemia": "[thresholds['vitamin_b12'][gender]['low'], INFINITY]",
+            "user_high_vitamin_b12": "[thresholds['vitamin_b12'][gender]['low'], INFINITY]",
+            "default": "[thresholds['vitamin_b12'][gender]['low'], INFINITY]"
         }
     }
   },
   "medical_conditions": {
     "over_weight": {
-      "condition": "BMI>=25 and (WAIST >=102 if gender ==1 else WAIST>=88)",
+      "condition": "BMI>=25",
       "preference": ["over_weight","low_calorie"]
       },
     "under_weight": {
@@ -327,7 +442,9 @@
     },
     "diabetes": {
       "condition": "glucose >= 7.0 and glycohemoglobin >= 6.5",
-      "preference": ["low_sugar", "high_fiber", "diabetes"]
+      "preference": [
+        "low_sugar", "high_fiber", "diabetes"
+      ]
     },
     "anemia":{
       "condition": "red_blood_cell_count<= 4 and (hemoglobin<13.2 if gender ==1 else hemoglobin<11.6)",
