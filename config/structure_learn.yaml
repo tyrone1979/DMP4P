@@ -1,44 +1,46 @@
-# Learned day-structure priors (fit by scripts/learn_structure_prior.py).
-# Wired into Bronze GA Layer-A Hard / soft scoring.
-
-version: "1.2"
-active_corpus: full   # golden | full — plate IsolationForest / legacy axes
-# Category-gram Hard envelope (FNDDS majors 1–9 day grams); preferred for GA Hard
+version: '1.2'
+active_corpus: full
 active_structure: category_grams
 category_grams_hard: true
-
 paths:
   golden: outputs/structure_learn/golden
-  full: outputs/structure_learn/full
-  full_category: outputs/structure_learn/full_category
+  full: outputs/nhanes_release_reconciled_1720_v1/reconciled_plate_prior
+  full_category: outputs/nhanes_release_reconciled_1720_v1/reconciled_category_prior
   compare: outputs/structure_learn/critical_compare_golden_vs_full.csv
-
 fit:
   q_lo: 0.05
   q_hi: 0.95
-  tau_golden: 0.90
+  tau_golden: 0.9
   tau_full: 0.95
   min_stratum_n: 40
-
-# Declarative structure recipe (algo/structure_schema.py).
-# Fit learns quantile bands on active cell features, stratified by active person dims.
-# Mark optional dims active (and supply columns) to extend — no code fork required.
 structure_schema:
   name: category_grams_meal
   person_dims:
-    - {name: sex, optional: false}
-    - {name: bmi_class, optional: false}
-    - {name: age_band, optional: false}
-    # Future: participant race/ethnicity → Latin-American strata, etc.
-    - {name: race, optional: true, notes: "wire RIDRETH3 / ethnicity when ready"}
+  - name: sex
+    optional: false
+  - name: bmi_class
+    optional: false
+  - name: age_band
+    optional: false
+  - name: race
+    optional: true
+    notes: wire RIDRETH3 / ethnicity when ready
   cell_axes:
-    - {name: major, optional: false, feature_template: "g_major_{code}_{meal}"}
-    # Future: food cuisine tags → e.g. Mexican under Latin-American structure
-    - {name: cuisine, optional: true, feature_template: "g_cuisine_{code}_{meal}", notes: "mexican, …"}
+  - name: major
+    optional: false
+    feature_template: g_major_{code}_{meal}
+  - name: cuisine
+    optional: true
+    feature_template: g_cuisine_{code}_{meal}
+    notes: mexican, …
+notes: 'Category-grams: Full NHANES food-only days, stratified by active person dims
 
-notes: |
-  Category-grams: Full NHANES food-only days, stratified by active person dims
   (default sex×BMI×age; race/cuisine reserved optional). Bands are per
+
   eating_type × active cell axis (default FNDDS major), scaled by
+
   expected_total_g / ref_total_g. Bronze archive Hard is type presence (hi≤0);
+
   gram OOR deferred to Silver. Plate prior (active_corpus) remains soft IF.
+
+  '

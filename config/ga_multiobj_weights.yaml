@@ -1,200 +1,149 @@
-# GPU-GA multi-objective diet generation (v2)
-# Layer A: hard nutrient + B/L/D presence
-# Layer B: scalar score among feasible solutions
-
 plan_generation_method: BMOEA_gpu_ga_v2
-# Search stops once archive has this many unique sols (was 20; lowered to 7).
 n_solutions_per_user: 7
 archive_target: 7
-# Checkpoint status=ok when n_solutions >= this. ≥1 after a 50-gen stage counts complete.
 min_solutions_complete: 1
-max_combination_size: 15   # NHANES n_foods p50≈11 / p95≈22; hard-cap below 20
+max_combination_size: 15
 min_foods: 5
-
-# Population seeding RNG. null = fresh entropy each seed call (recommended).
-# Set an int for reproducible runs; sequential sols use ga_seed + pop_seed_offset.
 ga_seed: null
-
-# N+1 sequential pool-ban (pluggable). Default on (fndds) for culinary turnover.
-# Ablation: set enabled=false or plugin=none. CLI override: --ban-plugin none|fndds
-# Policy details for plugin=fndds: config/fndds_food_code_policy.yaml
 sequential_ban:
   enabled: true
-  plugin: fndds           # none | fndds
-  # Retries when a sequential slot stalls (new pop seed each try) before stopping
+  plugin: fndds
   retries_per_sol: 3
-
-# Adaptive / escalation search
-# Default single-call stages (used when --escalation-ladder is off).
-# With --escalation-ladder: targets are split easy→pass1, medium→pass2,
-# hard→pass3, extreme→pass4(+5000 rungs). Each pass only runs its difficulty.
 adaptive:
   enabled: true
-  # early escalate only inside multi-stage calls; single-stage passes use full g
   no_feasible_escalate_gens: 60
   stages:
-    - name: p1000_g50
-      population_size: 1000
-      generations: 50
-      stop_at: 7
+  - name: p1000_g50
+    population_size: 1000
+    generations: 50
+    stop_at: 7
   escalation_passes:
-    # 简单 → pass1
-    - name: pass1_easy_p1000_g50
-      difficulty: easy
-      population_size: 1000
-      generations: 50
-      stop_at: 7
-    # 中等 → pass2 ×2
-    - name: pass2_medium_p2000_g60_r1
-      difficulty: medium
-      population_size: 2000
-      generations: 60
-      stop_at: 7
-    - name: pass2_medium_p2000_g60_r2
-      difficulty: medium
-      population_size: 2000
-      generations: 60
-      stop_at: 7
-    # 难 → pass3 ×3
-    - name: pass3_hard_p3000_g70_r1
-      difficulty: hard
-      population_size: 3000
-      generations: 70
-      stop_at: 7
-    - name: pass3_hard_p3000_g70_r2
-      difficulty: hard
-      population_size: 3000
-      generations: 70
-      stop_at: 7
-    - name: pass3_hard_p3000_g70_r3
-      difficulty: hard
-      population_size: 3000
-      generations: 70
-      stop_at: 7
-    # hard 收尾加强（仅剩少数 not_found 时用）
-    - name: pass3_hard_p4000_g100_r4
-      difficulty: hard
-      population_size: 4000
-      generations: 100
-      stop_at: 7
-    - name: pass3_hard_p5000_g120_r5
-      difficulty: hard
-      population_size: 5000
-      generations: 120
-      stop_at: 7
-    - name: pass3_hard_p5000_g150_r6
-      difficulty: hard
-      population_size: 5000
-      generations: 150
-      stop_at: 7
-    # 极难 → pass4 ×4
-    - name: pass4_extreme_p4000_g80_r1
-      difficulty: extreme
-      population_size: 4000
-      generations: 80
-      stop_at: 7
-    - name: pass4_extreme_p4000_g80_r2
-      difficulty: extreme
-      population_size: 4000
-      generations: 80
-      stop_at: 7
-    - name: pass4_extreme_p4000_g80_r3
-      difficulty: extreme
-      population_size: 4000
-      generations: 80
-      stop_at: 7
-    - name: pass4_extreme_p4000_g80_r4
-      difficulty: extreme
-      population_size: 4000
-      generations: 80
-      stop_at: 7
-    # 收尾：全部剩余 incomplete + not_found 合并，5000/100 再跑一轮
-    - name: pass_final_all_p5000_g100
-      difficulty: all
-      population_size: 5000
-      generations: 100
-      stop_at: 7
-
-# Hard meal presence (grams), aligned with config/review_thresholds.yaml
+  - name: pass1_easy_p1000_g50
+    difficulty: easy
+    population_size: 1000
+    generations: 50
+    stop_at: 7
+  - name: pass2_medium_p2000_g60_r1
+    difficulty: medium
+    population_size: 2000
+    generations: 60
+    stop_at: 7
+  - name: pass2_medium_p2000_g60_r2
+    difficulty: medium
+    population_size: 2000
+    generations: 60
+    stop_at: 7
+  - name: pass3_hard_p3000_g70_r1
+    difficulty: hard
+    population_size: 3000
+    generations: 70
+    stop_at: 7
+  - name: pass3_hard_p3000_g70_r2
+    difficulty: hard
+    population_size: 3000
+    generations: 70
+    stop_at: 7
+  - name: pass3_hard_p3000_g70_r3
+    difficulty: hard
+    population_size: 3000
+    generations: 70
+    stop_at: 7
+  - name: pass3_hard_p4000_g100_r4
+    difficulty: hard
+    population_size: 4000
+    generations: 100
+    stop_at: 7
+  - name: pass3_hard_p5000_g120_r5
+    difficulty: hard
+    population_size: 5000
+    generations: 120
+    stop_at: 7
+  - name: pass3_hard_p5000_g150_r6
+    difficulty: hard
+    population_size: 5000
+    generations: 150
+    stop_at: 7
+  - name: pass4_extreme_p4000_g80_r1
+    difficulty: extreme
+    population_size: 4000
+    generations: 80
+    stop_at: 7
+  - name: pass4_extreme_p4000_g80_r2
+    difficulty: extreme
+    population_size: 4000
+    generations: 80
+    stop_at: 7
+  - name: pass4_extreme_p4000_g80_r3
+    difficulty: extreme
+    population_size: 4000
+    generations: 80
+    stop_at: 7
+  - name: pass4_extreme_p4000_g80_r4
+    difficulty: extreme
+    population_size: 4000
+    generations: 80
+    stop_at: 7
+  - name: pass_final_all_p5000_g100
+    difficulty: all
+    population_size: 5000
+    generations: 100
+    stop_at: 7
 min_meal_weight_g:
   breakfast: 30
   lunch: 50
   dinner: 50
   snack: 0
-
-# Hard: condiment / oil / sweets-beverage dominance (same rule as Silver)
-# Food group 8 = fats/oils; 9 = sugars/sweets/beverages
 hard_operability:
-  condiment_oil_food_group_codes: [8, 9]
+  condiment_oil_food_group_codes:
+  - 8
+  - 9
   condiment_oil_weight_share_hard: 0.85
   condiment_min_meal_kcal: 200
   condiment_fail_n_meals: 2
-  # also reject a single major meal that is almost only group 8/9
   beverage_weight_share_hard: 0.95
-
-# Layer-B weights
 weights:
-  w_positive_negative: 1.0   # sum(positive) - sum(negative)
-  w_food_groups: 3.0         # n unique FNDDS major groups (1-9) — encourage variety
-  w_unique_foods: 0.0        # was +0.15 (rewarded 20–30 foods); cardinality handled by hard max
-  w_n_foods_target: 11       # NHANES median unique foods/day
-  w_n_foods_deviation: 0.6   # penalty per food away from target (beyond ±2 band)
-  w_meals: 3.0               # n distinct meal slots present (B/L/D/snack)
-  w_structure_fit: 5.0       # closeness of gram shares + daily weight to NHANES priors
-  w_uncommon_penalty: 0.25   # was 1.5 — heavy uncommon penalty collapsed pool to ~300 foods
-  w_learned_iforest: 2.0     # bonus from learned structure IsolationForest score
-
-# Structure-fit tolerances (soft) + hard daily weight
+  w_positive_negative: 1.0
+  w_food_groups: 3.0
+  w_unique_foods: 0.0
+  w_n_foods_target: 11
+  w_n_foods_deviation: 0.6
+  w_meals: 3.0
+  w_structure_fit: 5.0
+  w_uncommon_penalty: 0.25
+  w_learned_iforest: 2.0
 structure:
-  # Score contribution in [0, 1] per meal share: max(0, 1 - |share - prior| / tol)
   share_tolerance: 0.25
-  # Daily total weight: score 1 inside [p25, p75], decays to 0 at p5/p95
   use_weight_band: true
-  # Hard reject days above this NHANES prior percentile (~p75≈2505 g; blocks >>1.7 kg blow-ups)
   hard_daily_weight: true
   daily_weight_g_max_percentile: p75
   daily_weight_g_max_fallback: 2505.0
-  # Gram [lo,hi] Hard off in Bronze (out-of-band OK; Silver may repair).
   category_grams_hard: false
-  # Food-type presence Hard: hi≤0 meal×major must be empty (paired with cell_ga hi0 lock).
   category_presence_hard: true
-  # Plate IsolationForest / legacy axes — soft bonus only
   learned_structure_hard: false
-  learned_require_iforest: false   # iforest is soft via w_learned_iforest
-  # Band scaling: BMI stratum envelope + scale mass axes by expected_total_g / ref_total_g
-  # (expected_total_g from BMI stratum p50(total_g), or calorie_lo density proxy)
-  # Cell-GA: hi0 cells locked out of pool; gram bands soft in fitness
+  learned_require_iforest: false
   cell_ga:
     enabled: true
-    per_cell_quota: 400   # 80 starved pool (~2.4k); keep meal×major slices but more depth
+    per_cell_quota: 400
     freeze_true_cells: true
     max_foods_per_cell: 3
-    # Guided top-k + explore (feasibility without locking one dish); protect elites
     mutation_rate_cap: 0.15
     mutate_topk: 5
     mutate_explore_frac: 0.25
     protect_elites: true
-    zero_archive_stall_gens: 12  # stop if archive still 0 after N gens
+    zero_archive_stall_gens: 12
     crossover: food_id_uniform
     mutate: food_id_replace_add_drop
-
-# Candidate pool
 pool:
   prefer_common: true
   common_pct_days_min: 5.0
   uncommon_pct_days_max: 1.0
   min_per_meal: 250
   max_pool_size: 18000
-  # Per lo>0 nutrient: sample up to K foods with amount>0 (no density ranking)
   nutrient_booster_k: 160
   keep_user_history: true
-  # Drop extreme NHANES portions that blow upper bounds
   grams_min: 5
   grams_max: 500
-  # bronze plate-food filter version (documentation / audit)
   food_exclusion_config: config/bronze_food_exclusions.yaml
-  # When target has sodium upper + potassium lower (BP-like): force low-Na/high-K foods
-  # Density thresholds + usable portion (skip dry powders / crumbs)
   low_na_high_k:
     enabled: true
     sodium_per_100g_max: 140
@@ -204,16 +153,13 @@ pool:
     per_meal_force: 40
     seed_picks: 8
     rank_bonus: 25.0
-    # keep pool nearly deterministic for BP (was random explore → flaky not_found)
     explore_frac: 0.05
-    # 0: archive=0 时不再换池重试（换池几乎不增解，只浪费时间）
     pool_retries: 0
-
-# Paths (relative to repo root)
 paths:
-  structure_overall: outputs/nhanes_food_only_operability/table_structure_overall.csv
-  structure_by_sex: outputs/nhanes_food_only_operability/table_structure_by_sex.csv
-  structure_by_bmi: outputs/nhanes_food_only_operability/table_structure_by_bmi.csv
-  structure_by_age: outputs/nhanes_food_only_operability/table_structure_by_age.csv
-  structure_by_sex_bmi: outputs/nhanes_food_only_operability/table_structure_by_sex_bmi.csv
-  food_frequency: outputs/nhanes_food_only_operability/table_food_frequency.csv
+  structure_overall: outputs/nhanes_release_reconciled_1720_v1/operability/table_structure_overall.csv
+  structure_by_sex: outputs/nhanes_release_reconciled_1720_v1/operability/table_structure_by_sex.csv
+  structure_by_bmi: outputs/nhanes_release_reconciled_1720_v1/operability/table_structure_by_bmi.csv
+  structure_by_age: outputs/nhanes_release_reconciled_1720_v1/operability/table_structure_by_age.csv
+  structure_by_sex_bmi: outputs/nhanes_release_reconciled_1720_v1/operability/table_structure_by_sex_bmi.csv
+  food_frequency: outputs/nhanes_release_reconciled_1720_v1/operability/table_food_frequency.csv
+  structure_learn_config: config/structure_learn_reconciled_v1.yaml
