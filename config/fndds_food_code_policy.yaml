@@ -1,0 +1,230 @@
+# FNDDS 8-digit food_id prefix → type / sequential-ban / preferred unit kind.
+# Match longest prefix first. Keywords are fallback only for edge cases.
+version: "2.0"
+
+# ---------------------------------------------------------------------------
+# Type labels (for logging / filters)
+# ---------------------------------------------------------------------------
+type_by_prefix:
+  "57": rte_cereal          # ready-to-eat breakfast cereal (Fiber One, Cap'n, …)
+  "56": pasta_noodle
+  "55": pancake_waffle
+  "54": cracker
+  "53": cake_sweet_bakery
+  "52": biscuit_muffin
+  "52215": tortilla         # corn / flour / WW tortilla (not chips)
+  "51": bread
+  "26": fish_seafood
+  "24": poultry
+  "22": pork
+  "21": beef
+  "27": meat_mixtures
+  "41": legumes
+  "42": nuts_seeds
+  "71": potato_chips_snacks
+  "11": milk_dairy          # broad; unit refined below
+  "118": dry_powder         # dry milk / cocoa / milk-based meal-replacement powder
+  "12": cream
+  "14": cheese
+  "92": coffee_tea
+  "92191": dry_powder       # coffee dry powder, not reconstituted
+  "92291": dry_powder       # Postum dry powder
+  "929": dry_powder         # Tang / Crystal Light / Gatorade dry concentrate
+  "93": alcohol
+  "94": water
+  "91": sugar_sweetener
+  "91745": hard_candy       # hard candy / lollipop / cough drop / gumdrop / mint
+  "95": meal_replacement    # Herbalife / Slim Fast / Ensure / protein powder (951–953)
+  "61": fruit
+  "62": dried_fruit
+  "72": leafy_veg
+  "73": other_veg
+  "74": tomato_veg
+  "75": veg_mixtures
+
+# ---------------------------------------------------------------------------
+# Main dish (主菜) — labeling / keep-mains / week diversity ONLY.
+# Independent from sequential_ban below.
+# Match: first_digits OR longest prefixes (below). Raw/simple sides (752*) excluded.
+# ---------------------------------------------------------------------------
+main_cuisine:
+  # 2 = meat / poultry / fish / mixtures; 3 = eggs.
+  first_digits: ["2", "3"]
+  # Extra plate mains (longest-prefix match). Not all 7* vegetables.
+  prefixes:
+    - "418"        # meatless analogs + tofu&veg + veggie burger / veg chili / stew
+    - "754005"     # stuffed artichokes
+    - "754105"     # chiles rellenos / stuffed jalapeño
+    - "75411010"   # corn scalloped / soufflé
+    - "754120"     # eggplant parmesan casserole
+    - "75414020"   # stuffed mushrooms
+    - "754180"     # summer squash casserole / soufflé
+    - "75439"      # vegetable stew, without meat
+    - "754402"     # vegetable tempura
+    - "754406"     # vegetable curry (± rice)
+    - "75316050"   # ratatouille
+    - "75317"      # stew-type vegetable mix (potato/carrot/onion/celery)
+    - "58162120"   # stuffed pepper w/ rice, meatless
+    - "58162140"   # stuffed tomato w/ rice, meatless
+    # --- pizza ---
+    - "58106"      # pizza, cheese / meat / veg (thin/thick/NS crust)
+    - "58107"      # pizza on pizza crust / white pizza etc.
+    - "58108"      # calzone / panzerotti / stromboli
+    - "58109"      # italian pie / whole-wheat pizza variants
+    # --- Mexican wraps / plates ---
+    - "58100"      # burrito / enchilada / chilaquiles (+ existing casserole ids)
+    - "58101"      # flauta / soft taco / related
+    - "58102"      # taco / burrito variants
+    - "58103"      # tamale (+ casserole)
+    - "58104"      # nachos w/ meat-beans / taquitos
+    - "58105"      # fajita / pupusa
+    - "581151"     # tamale casserole, P.R.
+    - "581152"     # taco w/ crab, P.R.
+    - "58306"      # frozen enchilada dinners
+    # --- sushi ---
+    - "58151"      # sushi / nigiri / maki / temaki
+    # --- Asian noodle / fried-rice plates ---
+    - "58135"      # chow fun w/ meat or vegetables
+    - "58136"      # lo mein
+    - "58137"      # pad thai
+    - "58150"      # fried rice / bibimbap / tteokbokki
+    - "58155"      # arroz con pollo / paella / asopao (P.R. rice plates)
+    - "58156"      # P.R. fried rice / rice w/ sausage / stewed beans
+    - "754609"     # chow mein / chop suey, meatless, with noodles
+    # --- stuffed pasta / quiche / savory pastry ---
+    - "58125"      # quiche
+    - "58131"      # ravioli
+    - "58133"      # manicotti
+    - "58134"      # stuffed shells / tortellini
+    - "58110"      # egg roll
+    - "58111"      # wonton, meat-filled
+    - "58112"      # dim sum / steamed meat dumpling
+    - "58113"      # fried pork dumpling
+    - "58120"      # crepes filled w/ meat/fish/poultry
+    - "58121"      # meat / potato-cheese dumpling (pierogi)
+    - "58116"      # empanada / meat turnover (P.R. / Mexican)
+    - "58122"      # knish (potato / cheese / meat)
+    - "58126"      # bierock / meat turnover
+    # --- pasta plates (incl. meatless tomato, mac & cheese, pasta salad) ---
+    - "58132"      # spaghetti w/ tomato (± meatless / meat / clam / chicken)
+    - "58145"      # macaroni / noodles with cheese (± meat/tuna)
+    - "58146"      # pasta w/ tomato / meat / carbonara / cream sauces
+    - "58147"      # pasta w/ pesto
+    - "58148"      # macaroni / pasta salad
+    - "58304"      # spaghetti & meatballs frozen dinner
+    - "58305"      # mostaccioli w/ meatballs frozen dinner
+    # --- more plate meals found in sweep ---
+    - "581272"     # croissant filled w/ ham & cheese / sausage / bacon & egg
+    - "581273"     # croissant breakfast sandwiches
+    - "581573"     # congee w/ meat/seafood/vegetables
+    - "58161510"   # grape leaves stuffed w/ rice
+    - "58174"      # upma / dosa (± filling)
+    - "58175000"   # vada (Indian fried dumpling)
+    - "58160000"   # biryani with vegetables
+    - "55702100"   # dosa (Indian), plain
+    - "77141010"   # potato chicken pie, P.R. (pastelon de pollo)
+    - "77205610"   # ripe plantain meat pie, P.R. (pinon)
+    - "41205030"   # refried beans with meat
+    # --- wraps / veggie-burger sandwiches / bean mains ---
+    - "582001"     # wrap sandwich w/ meat/poultry/fish
+    - "582003"     # wrap sandwich w/ meat + cheese
+    - "41901"      # veggie burger / soyburger / falafel on bun
+    - "4120507"    # hummus (± flavored)
+    - "41221020"   # chili with beans, without meat
+    - "41305050"   # dal
+    - "41311020"   # sambar
+    - "41311030"   # lentil curry
+    - "41311040"   # lentil curry with rice
+    # --- 煲 / casserole / baked entree ---
+    - "272506"     # tuna noodle casserole (also covered by 2* but listed for clarity)
+    - "58130"      # lasagna (± meat / meatless / spinach)
+    - "58301"      # lasagna frozen / diet frozen meals
+    - "581611"     # rice / brown-rice casserole w/ cheese
+    - "72125260"   # spinach & cheese casserole
+    - "722020"     # broccoli casserole
+    - "73211110"   # sweetpotato & pumpkin casserole, P.R.
+    - "73409000"   # sweetpotato casserole or mashed
+    - "77316600"   # eggplant and meat casserole
+
+# ---------------------------------------------------------------------------
+# Sequential ban policy (used when GA sequential_ban.plugin=fndds)
+# Ablation switch lives in config/ga_multiobj_weights.yaml (plugin: none|fndds).
+# ---------------------------------------------------------------------------
+sequential_ban:
+  # Exact food_id ban when day hits these majors (no family expand).
+  # Typically same as main_cuisine, but configured separately.
+  exact_ban_first_digits: ["2", "3"]
+  # When false (default): only ban food_ids that appear on the day.
+  # When true: also wipe entire family_prefixes / family_unit_kinds from the pool.
+  expand_prefix_family: false
+  # Used only if expand_prefix_family: true — ban ALL pool foods with the
+  # same matched prefix when the day hits that prefix.
+  family_prefixes:
+    - "4"       # legumes / nuts / seeds — N+1 family ban (NOT main dish)
+    - "57"      # RTE cereal (Fiber One / Cap'n / …)
+    - "95"      # meal replacement / nutritional shake / protein powder (Herbalife, …)
+    - "91745"   # hard candy / lollipop / cough drop / gumdrop
+    - "118"     # dry milk / cocoa / milk-based powder (not reconstituted)
+    - "929"     # dry fruit-beverage concentrates
+    - "92191"   # coffee dry powder
+    - "92291"   # Postum dry powder
+    - "712"     # white potato chips (incl. fat-free) — N+1 family ban
+    - "75232"   # seaweed dried/cooked — N+1 family ban
+    - "54"      # crackers / crispbread family — N+1 family ban
+    - "52215"   # corn / flour / WW tortillas (not tortilla chips 544*) — N+1 family ban
+    - "511070"  # bread, French or Vienna (+ toasted) — N+1 family ban
+    - "511550"  # roll, French or Vienna (+ toasted)
+    - "513015"  # bread, French, whole wheat (homemade/bakery ± toasted)
+  # If day hits any of these unit_kinds, ban ALL pool foods of that unit_kind
+  family_unit_kinds:
+    - "dry_powder"
+    - "cracker"      # crispbread / crackers (54*) — same expand as prefix 54
+  # Optional extra exact-id prefixes (no family expand) — empty for now
+  exact_prefixes: []
+
+# ---------------------------------------------------------------------------
+# Unit kind hints for display-unit picker (scripts/build_food_portion_units.py)
+# ---------------------------------------------------------------------------
+unit_kind_by_prefix:
+  # beverages / fluids → mL
+  "111": liquid      # fluid cow milk
+  "112": liquid      # evaporated / condensed (as used)
+  "113": liquid      # non-dairy milk drinks
+  "115": liquid      # flavored / chocolate milk
+  "116": liquid
+  "12": liquid       # cream / half-and-half
+  "92": liquid       # coffee / tea (prepared)
+  "93": liquid       # alcohol
+  "94": liquid       # water
+  # dry powders (not beverages) — longest prefix wins over "92"
+  "118": dry_powder  # dry milk / cocoa / milk-based MR powder
+  "92191": dry_powder
+  "92291": dry_powder
+  "929": dry_powder
+  "952": dry_powder  # Herbalife / Slim Fast / protein powder mixes (not RTD 951)
+  "951": liquid      # ready-to-drink nutritional shakes
+  # solids with preferred count units
+  "26": fish         # prefer fillet
+  "51": bread        # household unit from FNDDS / yaml / grams_raw
+  "52215": tortilla  # corn/flour tortilla (not chips 544*)
+  "54": cracker      # prefer piece
+  "57": cereal       # prefer cup
+  "712": snack_chip  # white potato chips (not all 71* potatoes/salads)
+  "71905": snack_chip  # plantain chips
+  "71980": snack_chip  # taro chips
+  "14": cheese
+  "42": nuts
+  "61": produce
+  "62": produce
+  "91745": other     # hard candy → keep count/g, not powder
+
+# First-digit fallback when no longer prefix matches
+unit_kind_by_major:
+  "1": other
+  "2": protein
+  "3": protein
+  "4": protein
+  "5": grain
+  "6": produce
+  "7": produce
+  "9": other

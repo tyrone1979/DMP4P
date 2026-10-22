@@ -1,0 +1,69 @@
+# Golden publish: operable units + week assembly (Scientific Data canonical layer)
+version: "1.0"
+
+daily_slack_pct: 0.15
+infinite_upper: 1.0e7
+
+week:
+  n_days: 7
+  # Hard: every day in the week must use a distinct fingerprint.
+  min_unique_days: 7
+  max_swap_tries: 40
+  allow_repeat_if_short: false
+  # Culinary diversity (beyond fingerprint uniqueness):
+  # near-identical plates that only swap a snack still fail Jaccard / main-food caps.
+  max_jaccard: 0.45
+  max_food_days: 2          # any food_id on at most this many days
+  max_main_food_days: 1     # meat/fish/egg/legume (FNDDS 2/3/4) at most once / week
+  allow_relax_diversity: true  # if pool is thin, ease Jaccard then allow main twice
+  # Cross-target soft-ok borrowing when same-target days share the same hero foods
+  max_candidate_pool: 160
+  per_main_signature: 3     # at most N days with the same main-protein set in the pool
+  # When [7L,7U] is jointly infeasible, keep higher-priority nutrients hard
+  # and relax from the bottom of this list. Order = most important → least.
+  # Safety uppers (Na/P/protein/sugar) outrank osteoporosis/HTN floors when they conflict.
+  nutrient_priority:
+    - sodium
+    - phosphorus
+    - protein
+    - sugar
+    - saturated_fat
+    - cholesterol
+    - calcium
+    - vitamin_d
+    - potassium
+    - fiber
+    - calorie
+    - carb
+    - vitamin_c
+    - iron
+    - folic_acid
+    - vitamin_b12
+  # Must keep at least this many top-priority nutrients hard (by count in priority list present in target)
+  min_hard_nutrients: 5
+
+units:
+  # Bronze / daily sols: keep NHANES grams; attach FNDDS serve labels only.
+  # Legacy weekly / actual-diet snap path may still use steps below.
+  week_whole_qty: true
+  step_ml: 10
+  step_fl_oz: 1
+  step_piece: 1
+  step_unit: 1
+  step_cup: 0.5
+  step_g: 5
+  step_g_near_raw: 1
+  max_snap_rel_diff: 0.5
+  min_grams_per_piece: 2.0
+  max_qty_cup: 3.0
+  max_qty_piece: 8.0
+  max_qty_slice: 8.0
+  max_qty_unit: 4.0
+  beverage_density_g_per_ml: 1.0
+  ml_per_cup: 240.0
+  ml_per_fl_oz: 29.5735
+
+paths:
+  portion_options: data/portion_units/food_portion_options.csv
+  display_unit: data/portion_units/food_display_unit.csv
+  fndds_search_tool: "data/nhanes/What's In The Foods You Eat Search Tool 2021-2023.xlsx"

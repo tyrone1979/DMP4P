@@ -1,0 +1,223 @@
+# Bronze candidate-pool exclusions (adult, plate-like meals only).
+# Applied when loading food_user / filter_candidate_pool before GA.
+
+version: "bronze_v2.6_fndds_prefix_ban"
+
+# Require FPED (or official discontinued → FPED) so HEI can be scored later
+require_fped: true
+
+# FNDDS food_id prefixes always dropped (infant formula / baby formula codes)
+exclude_food_id_prefixes:
+  - "117"   # infant formulas (Enfamil / Similac / …)
+
+# Drop these description substrings in ANY meal (not normal plate food)
+exclude_keywords:
+  # infant / human milk / formula / junior baby foods
+  - baby food
+  - baby,
+  - "baby "
+  - ", baby"
+  - infant
+  - toddler
+  - human milk
+  - breast milk
+  - breastmilk
+  - "formula, ready"
+  - "formula, prepared"
+  - infant formula
+  - "inf formula"
+  - "inf form"
+  - "inf form,"
+  - pedialyte
+  - gerber
+  - teething
+  - "baby cereal"
+  - "junior food"
+  - ", junior"
+  - "baby, strained"
+  - "baby, junior"
+  - "finger foods"
+  - "baby water"
+  # gum / artificial sweeteners (not a meal)
+  - chewing gum
+  - "gum,"
+  - sugar sub
+  - sugar substitute
+  - herbal extract sweetener
+  - artificial sweetener
+  - saccharin
+  - aspartame
+  - sucralose
+  - sugarless
+  - monk fruit
+  # non-food candy fillers (not plate food)
+  - cough drop
+  - cough drops
+  - "candy, mint"
+  - "candy, lollipop"
+  - lollipop
+  # meal replacements / sport / supplement powders & bars
+  - meal replacement
+  - nutritional drink
+  - drink mix
+  - protein supplement
+  - muscle milk
+  - protein powder
+  - whey protein
+  - nutrient supplement
+  - slim fast
+  - slimfast
+  - powerbar
+  - meal bar
+  - "ensure,"
+  - "boost,"
+  - meal prep drink
+  # NOTE: pure culinary oils kept for home-style cooking
+  - psyllium
+  - rice polish
+  - "yeast (include"
+  - "brewer's yeast"
+  - "special k"
+  - "fruit & yogurt"
+  # Temple / Buddhist mixed dish (not ordinary household plate food)
+  - "jai,"
+  - "monk's food"
+  - "monks food"
+  - "mshrms,lily"
+  - "lily rts,b.curd"
+  - "b.curd,w.chstnut"
+
+# Oats / oatmeal: breakfast only (not snack / lunch / dinner)
+breakfast_only_keywords:
+  - oatmeal
+  - "oats, raw"
+  - "oats,"
+  - "oat bran"
+  - porridge
+
+# RTE cereal / dry breakfast starch: OK at breakfast & snack — drop from lunch/dinner
+breakfast_snack_only_keywords:
+  - cereal
+  - "shredded wheat"
+  - granola
+  - muesli
+  - matzo
+  - "crackers,"
+  - "cracker,"
+  - cracker
+  - "wheat germ"
+  - bran
+  - flakes
+  - "grape-nut"
+  - cheerios
+  - frosted
+  - pancake
+  - waffle
+  - "english muffin"
+  - bagel
+  - "breakfast bar"
+  - "toaster pastry"
+  - "ready-to-eat"
+  - puffed
+  - "raisin bran"
+  - popcorn
+  - "bread stick"
+  - breadstick
+  - "salty snack"
+  - kashi
+  - "cracked wheat"
+  - "whole wheat, cracked"
+  - "wheat, cracked"
+  - "fiber one"
+
+# Salty chips / crisp snacks → snack only (never breakfast/lunch/dinner)
+# Prefer precise phrases; avoid bare "chip" (would hit chocolate chip cookies).
+snack_only_keywords:
+  - "potato, chips"
+  - "potato chips"
+  - "white potato, chips"
+  - "corn chips"
+  - "tortilla chips"
+  - "shrimp chips"
+  - "multigrain chips"
+  - "apple chips"
+  - "banana chips"
+  - "corn-cheese chips"
+  - "wheat-and corn-based chips"
+  - "vegetable chips"
+  - "pita chips"
+  - "pita chip"
+  - "plantain chips"
+  - "kale chips"
+  - "salty snacks, corn"
+  - "salty snacks, wheat"
+  - "salty snacks, multigrain"
+  - "salty snack mixture"
+  - "salty snacks,"
+  - pretzel
+  - pretzels
+  - "cheese flavored corn snack"
+  - cheetos
+  - "pork rinds"
+  - "pork skin rinds"
+  - "pork skins"
+  - "pork skin,"
+  - "pork skin"
+  - "corn nuts"
+  - "cheese puffs"
+  - "cheese puff"
+  - "onion rings, snack"
+
+# Loaf bread → not snack (breakfast / lunch / dinner only)
+no_snack_keywords:
+  - "bread, white"
+  - "bread, wheat"
+  - "bread, whole"
+  - "bread, rye"
+  - "bread, oatmeal"
+  - "bread, multigrain"
+  - "bread, sour dough"
+  - "bread, sourdough"
+  - "bread, french"
+  - "bread, italian"
+  - "bread, pita"
+  - "bread, naan"
+
+# Prefer these at snack (fiber-friendly nuts/seeds) when ranking snack pool
+snack_prefer_keywords:
+  - almond
+  - walnut
+  - peanut
+  - peanuts
+  - pistachio
+  - cashew
+  - hazelnut
+  - pecan
+  - mixed nuts
+  - sunflower seed
+  - pumpkin seed
+  - chia
+  - flax
+  - sesame seed
+  - trail mix
+
+exclude_regex: []
+
+allow_keywords:
+  - gumbo              # contains "gum" but is a soup
+  - oatmeal cookie     # not plain oats breakfast porridge
+  - not baby           # e.g. soy milk "ready-to-drink, not baby"
+  - special formula    # fiber-added bread, not infant formula
+  - chicken breast
+  - turkey breast
+  - duck breast
+
+# Sequential cross-sol ban is FNDDS-prefix driven — see
+# config/fndds_food_code_policy.yaml (family_prefixes: "57" RTE cereal).
+
+diversity:
+  stratify_by_food_group: true
+  min_per_food_group: 15
+  random_explore_frac: 0.35
+  common_rank_bonus: 0.15
+  snack_nut_rank_bonus: 2.0
