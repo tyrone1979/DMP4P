@@ -1,26 +1,47 @@
-# DMP4P - Daily Meal Plan Recommendation for Personal nutrition requirement
+# DMP4P V2.1 — V2-Quality
 
+**Current default branch.** V2.1 extends the structure-guided Bronze search with bounded distinct elites, feasible-parent selection, structure-directed same-cell improvement, nutrient-gap recovery and scheduled structured immigrants. These mechanisms improve search beyond first feasibility; production defaults are not silently replaced.
 
-[Online example](https://rec.neusoft.edu.cn/)
+## Version identity
 
-Get data at https://doi.org/10.6084/m9.figshare.30153778
+- Public method name: **V2-Quality (V2.1)**.
+- Frozen experiment identifier: `v2_quality_recovery`.
+- Algorithm source anchor: `0effdf5`; frozen seven-day protocol: `829a793`.
+- V2.0 denotes the historical Bronze production generation.
+- GitHub public core-code export anchor: `cd89bb1`; public module paths differ from the internal development layout.
 
-1. [Data generation guidance](DATA.md)
-2. [Installation](INSTALL.md)
-3. [Code guidance](CODE.md)
+## Runtime components
 
-# Usage Note
-1. Input user information
-![user_info.jpg](user_info.jpg)
-2. Calculate nutrition requirement range based on user information. 
-3. Search nutrition requirement range in targets table, and get target list
-4. Search target list in meal_plan table and get daily_food_id list
-5. Search daily_food_id list in food_user table and get food_id, eating type, grams
-6. Search food_id in food_code table and get food description.
-7. Return meal plans with food item list
-![meal_plan.jpg](meal_plan.jpg)
+Use Python 3.11 with NumPy, pandas, PyTorch, SciPy, scikit-learn, PyYAML, tqdm and pyarrow. Supply food/portion rows, nutrient targets and learned personal structure priors separately. CUDA requires a compatible PyTorch build and GPU driver.
 
-- Author: Lei Zhao
-- ORCID: 0009-0004-1363-2258
-- mailto: zhaolei@neusoft.edu.cn, tyrone197913@hotmail.com
+```python
+from algo.v2_quality_recovery import FoodCombinerV2QualityRecovery
+```
 
+The recovery class inherits the food-pool, target and configuration interfaces of `FoodCombinerV2`. Independently verified ranking uses the injected `quality_evaluator`. The generic command below still invokes the **production V2** CLI; it is not an end-to-end V2.1 launcher:
+
+```bash
+PYTHONPATH=. python find_bronze_multiobj.py --help
+```
+
+## Reproducibility status
+
+The internal frozen seven-day evaluation used 24 structure-target units, four difficulty strata, four methods and three seeds (288 runs). V2.1 completed seven days in 54/72 runs and delivered 447 days, including 319 satisfying all tested category bands. These are system-level benchmark results, not whole-population generation or clinical validation. All tested category lower bounds were zero. Preparation within budget is distinct from strict response latency.
+
+This public branch contains core algorithms, necessary configurations and generic runtime code. It intentionally excludes manuscripts and paper-specific experimental/analysis scripts. The independent evaluator and complete online-selection/delivery runtime have not yet been packaged here; successful imports alone do not reproduce the reported experiment. Public runtime parity remains work in progress. See V2_RUNTIME.md and RELEASE_VERSION.md for export scope. The existing MIT license applies to the public code; it does not relicense third-party data.
+
+## Data and follow-up scope
+
+The earlier Figshare 30153778 deposit belongs to **V1**. Historical V2.0 exports, the current V2.1 seven-day benchmark and any future full-population V2.1 release must be versioned separately. A full-population V2.1 corpus has not been generated in this phase. Practical meal/portion reasonableness remains follow-up work; new rules require a separately recorded version and validation.
+
+## Versions and branches
+
+- [V1](https://github.com/tyrone1979/DMP4P/tree/V1): the earlier DMP4P generation. Its published data are at [Figshare](https://doi.org/10.6084/m9.figshare.30153778).
+- [V2.0](https://github.com/tyrone1979/DMP4P/tree/V2.0): the historical structure-guided Bronze production generation.
+- [V2.1](https://github.com/tyrone1979/DMP4P/tree/V2.1): V2-Quality, the current default branch.
+
+Branch names are case-sensitive. Figshare repository release `v7` is a revision of the **V1 deposit**, not algorithm V7. Neither V2.0 nor V2.1 should cite that DOI as its generated output.
+
+## Interpretation and limitations
+
+Outputs are computational fixed-portion food combinations, not observed participant diets or clinically validated prescriptions. Nutrient feasibility refers only to the active supplied bounds. Meal/category priors describe empirical structure; conformity is not proof of culinary coherence, dietary adequacy or user acceptance. Exact `food_id` exclusion does not guarantee semantically different dishes. Source data, learned priors, generated artifacts and code versions must be recorded separately.
