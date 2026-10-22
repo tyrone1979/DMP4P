@@ -150,7 +150,19 @@ def _load_frequency_tables(config_path: str) -> tuple[pd.DataFrame, set[int], se
 
 def get_common_uncommon_sets(config: Optional[dict] = None) -> tuple[set[int], set[int]]:
     cfg = config or load_ga_config()
-    _, common, uncommon = _load_frequency_tables(str(DEFAULT_CONFIG))
+    path = str(ROOT / cfg["paths"]["food_frequency"])
+    return _frequency_sets_from_path(path, float(cfg["pool"]["common_pct_days_min"]), float(cfg["pool"]["uncommon_pct_days_max"]))
+
+
+@lru_cache(maxsize=8)
+def _frequency_sets_from_path(path: str, common_min: float, uncommon_max: float):
+    p = Path(path)
+    if not p.is_file():
+        raise FileNotFoundError(p)
+    freq = pd.read_csv(p)
+    ids = pd.to_numeric(freq["food_id"], errors="coerce")
+    common = set(ids[freq["pct_days"] >= common_min].dropna().astype(int))
+    uncommon = set(ids[freq["pct_days"] < uncommon_max].dropna().astype(int))
     return common, uncommon
 
 
@@ -460,7 +472,7 @@ def layer_b_score(
     }
 
 
-def enrich_food_dataframe(food_df: pd.DataFrame) -> pd.DataFrame:
+def enrich_food_dataframe(food_df: pd.DataFrame, config: Optional[dict] = None) -> pd.DataFrame:
     """Add meal_id, food_group_code, is_common columns."""
     df = food_df.copy()
     if "eating_type" in df.columns:
@@ -469,7 +481,7 @@ def enrich_food_dataframe(food_df: pd.DataFrame) -> pd.DataFrame:
     df["meal"] = df["eating_type"].map(meal_from_eating_type)
     df["meal_id"] = df["eating_type"].map(meal_id_from_eating_type).fillna(0).astype(int)
     df["food_group_code"] = df["food_id"].map(food_group_code).astype(int)
-    common, _ = get_common_uncommon_sets()
+    common, _ = get_common_uncommon_sets(config)
     fids = pd.to_numeric(df["food_id"], errors="coerce")
     df["is_common"] = fids.isin(common).astype(int)
     for col in ("positive", "negative", "grams"):
@@ -692,7 +704,7 @@ def filter_candidate_pool(
     """
     cfg = config or load_ga_config()
     need_enrich = not {"meal", "meal_id", "food_group_code", "is_common"}.issubset(food_df.columns)
-    df = enrich_food_dataframe(food_df) if need_enrich else food_df
+    df = enrich_food_dataframe(food_df, cfg) if need_enrich else food_df
 
     already_plate = "meal_tags" in df.columns
     try:

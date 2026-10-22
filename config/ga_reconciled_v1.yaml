@@ -1,0 +1,165 @@
+plan_generation_method: BMOEA_gpu_ga_v2
+n_solutions_per_user: 7
+archive_target: 7
+min_solutions_complete: 1
+max_combination_size: 15
+min_foods: 5
+ga_seed: null
+sequential_ban:
+  enabled: true
+  plugin: fndds
+  retries_per_sol: 3
+adaptive:
+  enabled: true
+  no_feasible_escalate_gens: 60
+  stages:
+  - name: p1000_g50
+    population_size: 1000
+    generations: 50
+    stop_at: 7
+  escalation_passes:
+  - name: pass1_easy_p1000_g50
+    difficulty: easy
+    population_size: 1000
+    generations: 50
+    stop_at: 7
+  - name: pass2_medium_p2000_g60_r1
+    difficulty: medium
+    population_size: 2000
+    generations: 60
+    stop_at: 7
+  - name: pass2_medium_p2000_g60_r2
+    difficulty: medium
+    population_size: 2000
+    generations: 60
+    stop_at: 7
+  - name: pass3_hard_p3000_g70_r1
+    difficulty: hard
+    population_size: 3000
+    generations: 70
+    stop_at: 7
+  - name: pass3_hard_p3000_g70_r2
+    difficulty: hard
+    population_size: 3000
+    generations: 70
+    stop_at: 7
+  - name: pass3_hard_p3000_g70_r3
+    difficulty: hard
+    population_size: 3000
+    generations: 70
+    stop_at: 7
+  - name: pass3_hard_p4000_g100_r4
+    difficulty: hard
+    population_size: 4000
+    generations: 100
+    stop_at: 7
+  - name: pass3_hard_p5000_g120_r5
+    difficulty: hard
+    population_size: 5000
+    generations: 120
+    stop_at: 7
+  - name: pass3_hard_p5000_g150_r6
+    difficulty: hard
+    population_size: 5000
+    generations: 150
+    stop_at: 7
+  - name: pass4_extreme_p4000_g80_r1
+    difficulty: extreme
+    population_size: 4000
+    generations: 80
+    stop_at: 7
+  - name: pass4_extreme_p4000_g80_r2
+    difficulty: extreme
+    population_size: 4000
+    generations: 80
+    stop_at: 7
+  - name: pass4_extreme_p4000_g80_r3
+    difficulty: extreme
+    population_size: 4000
+    generations: 80
+    stop_at: 7
+  - name: pass4_extreme_p4000_g80_r4
+    difficulty: extreme
+    population_size: 4000
+    generations: 80
+    stop_at: 7
+  - name: pass_final_all_p5000_g100
+    difficulty: all
+    population_size: 5000
+    generations: 100
+    stop_at: 7
+min_meal_weight_g:
+  breakfast: 30
+  lunch: 50
+  dinner: 50
+  snack: 0
+hard_operability:
+  condiment_oil_food_group_codes:
+  - 8
+  - 9
+  condiment_oil_weight_share_hard: 0.85
+  condiment_min_meal_kcal: 200
+  condiment_fail_n_meals: 2
+  beverage_weight_share_hard: 0.95
+weights:
+  w_positive_negative: 1.0
+  w_food_groups: 3.0
+  w_unique_foods: 0.0
+  w_n_foods_target: 11
+  w_n_foods_deviation: 0.6
+  w_meals: 3.0
+  w_structure_fit: 5.0
+  w_uncommon_penalty: 0.25
+  w_learned_iforest: 2.0
+structure:
+  share_tolerance: 0.25
+  use_weight_band: true
+  hard_daily_weight: true
+  daily_weight_g_max_percentile: p75
+  daily_weight_g_max_fallback: 2505.0
+  category_grams_hard: false
+  category_presence_hard: true
+  learned_structure_hard: false
+  learned_require_iforest: false
+  cell_ga:
+    enabled: true
+    per_cell_quota: 400
+    freeze_true_cells: true
+    max_foods_per_cell: 3
+    mutation_rate_cap: 0.15
+    mutate_topk: 5
+    mutate_explore_frac: 0.25
+    protect_elites: true
+    zero_archive_stall_gens: 12
+    crossover: food_id_uniform
+    mutate: food_id_replace_add_drop
+pool:
+  prefer_common: true
+  common_pct_days_min: 5.0
+  uncommon_pct_days_max: 1.0
+  min_per_meal: 250
+  max_pool_size: 18000
+  nutrient_booster_k: 160
+  keep_user_history: true
+  grams_min: 5
+  grams_max: 500
+  food_exclusion_config: config/bronze_food_exclusions.yaml
+  low_na_high_k:
+    enabled: true
+    sodium_per_100g_max: 140
+    potassium_per_100g_min: 200
+    grams_min: 20
+    potassium_abs_min: 150
+    per_meal_force: 40
+    seed_picks: 8
+    rank_bonus: 25.0
+    explore_frac: 0.05
+    pool_retries: 0
+paths:
+  structure_overall: outputs/nhanes_release_reconciled_1720_v1/operability/table_structure_overall.csv
+  structure_by_sex: outputs/nhanes_release_reconciled_1720_v1/operability/table_structure_by_sex.csv
+  structure_by_bmi: outputs/nhanes_release_reconciled_1720_v1/operability/table_structure_by_bmi.csv
+  structure_by_age: outputs/nhanes_release_reconciled_1720_v1/operability/table_structure_by_age.csv
+  structure_by_sex_bmi: outputs/nhanes_release_reconciled_1720_v1/operability/table_structure_by_sex_bmi.csv
+  food_frequency: outputs/nhanes_release_reconciled_1720_v1/operability/table_food_frequency.csv
+  structure_learn_config: config/structure_learn_reconciled_v1.yaml

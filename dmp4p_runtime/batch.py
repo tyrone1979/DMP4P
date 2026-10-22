@@ -14,6 +14,11 @@ def main():
     a=parser.parse_args();plan=json.loads(a.plan.read_text());root=Path(__file__).resolve().parents[1]
     files=list((root/"dmp4p_runtime").rglob("*.py"))+list((root/"algo").glob("*.py"))+[root/"ga_gpu.py",root/"ga_gpu_v2.py",root/plan["ga_config"]]
     for job in plan["jobs"]:files+=list((root/job["snapshot"]).glob("*"))
+    for rel in plan.get("input_files", []):
+        p = root / rel
+        if not p.is_file():
+            raise FileNotFoundError(p)
+        files.append(p)
     digest={str(p.relative_to(root)):sha(p) for p in sorted(set(files)) if p.is_file()}
     payload={"plan":plan,"files":digest};fingerprint=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
     if a.dry_run:

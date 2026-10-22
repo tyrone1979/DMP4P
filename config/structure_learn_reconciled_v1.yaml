@@ -1,0 +1,46 @@
+version: '1.2'
+active_corpus: full
+active_structure: category_grams
+category_grams_hard: true
+paths:
+  golden: outputs/structure_learn/golden
+  full: outputs/nhanes_release_reconciled_1720_v1/reconciled_plate_prior
+  full_category: outputs/nhanes_release_reconciled_1720_v1/reconciled_category_prior
+  compare: outputs/structure_learn/critical_compare_golden_vs_full.csv
+fit:
+  q_lo: 0.05
+  q_hi: 0.95
+  tau_golden: 0.9
+  tau_full: 0.95
+  min_stratum_n: 40
+structure_schema:
+  name: category_grams_meal
+  person_dims:
+  - name: sex
+    optional: false
+  - name: bmi_class
+    optional: false
+  - name: age_band
+    optional: false
+  - name: race
+    optional: true
+    notes: wire RIDRETH3 / ethnicity when ready
+  cell_axes:
+  - name: major
+    optional: false
+    feature_template: g_major_{code}_{meal}
+  - name: cuisine
+    optional: true
+    feature_template: g_cuisine_{code}_{meal}
+    notes: mexican, …
+notes: 'Category-grams: Full NHANES food-only days, stratified by active person dims
+
+  (default sex×BMI×age; race/cuisine reserved optional). Bands are per
+
+  eating_type × active cell axis (default FNDDS major), scaled by
+
+  expected_total_g / ref_total_g. Bronze archive Hard is type presence (hi≤0);
+
+  gram OOR deferred to Silver. Plate prior (active_corpus) remains soft IF.
+
+  '

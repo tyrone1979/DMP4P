@@ -107,7 +107,7 @@ class FoodCombinerV2:
         self.require_bld = require_bld
         self.n_solutions = n_solutions or int(self.cfg.get("n_solutions_per_user", 7))
         self.archive_target = archive_target or int(self.cfg.get("archive_target", 7))
-        self.structure_prior = structure_prior or load_structure_prior()
+        self.structure_prior = structure_prior or load_structure_prior(config=self.cfg)
         self.participant_profile = dict(participant_profile or {})
         self._common, self._uncommon = get_common_uncommon_sets(self.cfg)
         st = self.cfg.get("structure") or {}
@@ -132,7 +132,7 @@ class FoodCombinerV2:
                 select_personal_category_for_bronze,
             )
 
-            self.category_prior = get_active_category_prior()
+            self.category_prior = get_active_category_prior((self.cfg.get("paths") or {}).get("structure_learn_config", ""))
             if personal_category_structure is not None:
                 self.personal_category_structure = personal_category_structure
             elif self.category_prior is not None:
@@ -162,7 +162,7 @@ class FoodCombinerV2:
             try:
                 from algo.structure_learn import get_active_structure_prior
 
-                self.learned_structure = get_active_structure_prior()
+                self.learned_structure = get_active_structure_prior((self.cfg.get("paths") or {}).get("structure_learn_config", ""))
                 if self.learned_structure is not None:
                     corp = self.learned_structure.get("_active_corpus", "?")
                     print(

@@ -25,3 +25,9 @@ For >2h jobs use a detached process, closed stdin and saved console/PID, then us
 ## Scientific scope
 
 No guarantee that seven days exist or will be found. Independent acceptance is separate from float32 search proxies. Food identity exclusion is not semantic dish uniqueness. The learned category bands are not evidence of clinical adequacy or cooking/portion reasonableness. Later practical-meal modifications require a new recorded method/data version.
+
+## Reconciled NHANES priors
+
+Use config/ga_reconciled_v1.yaml for the source-release reconciliation that retains 2017–March 2020 and excludes standalone 2017–2018. Aggregate category/plate models and meal-share, weight and frequency summaries are versioned under outputs/nhanes_release_reconciled_1720_v1; no raw respondent tables are included. Category and plate models use 7459 matched food-only training days. The portion dictionary is a shared fixed modeling resource. The configuration now routes all prior loads explicitly; frequency caches are keyed by configured file and thresholds. Batch plans may declare input_files so referenced model bytes are included in freeze fingerprints.
+
+Rebuild candidate snapshots when changing priors; replacing a score model alone is insufficient. Historical result artifacts were generated with their original models and must not be pooled with a new-prior run. The new-prior comparison is currently in progress; no new performance ranking is claimed here.

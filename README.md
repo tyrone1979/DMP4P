@@ -53,3 +53,7 @@ PYTHONPATH=. python -m dmp4p_runtime.cli --snapshot examples/runtime_toy --algor
 ```
 
 The fixture is synthetic and tests integration only. For V2.1 use `--algorithm v2_quality_recovery` with a compatible trusted fixed-pool snapshot. See [runtime usage](dmp4p_runtime/README.md). CP-SAT requires OR-Tools. Named structural-GA and grouped ablations are supplementary algorithms, not changes to the frozen V2.1 default.
+
+### Source-release reconciliation (22 October 2026)
+
+The explicit reconciled prior configuration is config/ga_reconciled_v1.yaml. It retains NHANES 2017–March 2020 and excludes the overlapping standalone 2017–2018 release. New candidate snapshots and evaluation are required when using this configuration. Existing benchmark artifacts retain their recorded provenance; see dmp4p_runtime/README.md.

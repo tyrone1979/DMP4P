@@ -16,7 +16,7 @@ from algo.diet_structure_priors import (
     load_ga_config,
     load_structure_prior,
 )
-from algo.structure_category import select_personal_category_for_bronze
+from algo.structure_category import select_personal_category_for_bronze, get_active_category_prior
 from algo.structure_cell_pool import build_structure_cell_pool
 from dmp4p_runtime.constraints import ConstraintSpec
 
@@ -105,7 +105,11 @@ def build_pool_snapshot(
     cfg = config or load_ga_config()
     demo = demo_from_structure_key(structure_key)
     t0 = time.perf_counter()
-    personal = select_personal_category_for_bronze(demo, target_dict)
+    prior_config = (cfg.get("paths") or {}).get("structure_learn_config", "")
+    category_model = get_active_category_prior(prior_config)
+    if prior_config and category_model is None:
+        raise ValueError("Explicit category prior configuration did not load")
+    personal = select_personal_category_for_bronze(demo, target_dict, model=category_model)
     flat = filter_candidate_pool(
         food_df,
         target_dict,
