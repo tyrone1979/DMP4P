@@ -1,0 +1,7 @@
+food_id,grams,calorie,food_group_code,meal,meal_id,eating_type,food_desc,positive,negative,is_common,bench_placement_allowed,candidate_id
+51000001,30.0,30.0,5,breakfast,1,1,synthetic test food,1,0,1,True,46377069a6976539
+51000002,60.0,30.0,5,breakfast,1,1,synthetic test food,1,0,1,True,652a48e72ef5a6c8
+51000003,50.0,50.0,5,lunch,2,2,synthetic test food,1,0,1,True,aff48d7030da78de
+51000004,80.0,50.0,5,lunch,2,2,synthetic test food,1,0,1,True,993328be0634a1d6
+51000005,50.0,50.0,5,dinner,3,3,synthetic test food,1,0,1,True,dee42704471bbae2
+51000006,90.0,50.0,5,dinner,3,3,synthetic test food,1,0,1,True,b5fb754528a3cb01

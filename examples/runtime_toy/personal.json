@@ -1,0 +1,20 @@
+{
+  "bands": {
+    "g_major_5_breakfast": {
+      "lo": 0,
+      "hi": 40
+    },
+    "g_major_5_lunch": {
+      "lo": 0,
+      "hi": 60
+    },
+    "g_major_5_dinner": {
+      "lo": 0,
+      "hi": 60
+    }
+  },
+  "upper_only_majors": [
+    8,
+    9
+  ]
+}

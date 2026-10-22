@@ -28,7 +28,7 @@ PYTHONPATH=. python find_bronze_multiobj.py --help
 
 The internal frozen seven-day evaluation used 24 structure-target units, four difficulty strata, four methods and three seeds (288 runs). V2.1 completed seven days in 54/72 runs and delivered 447 days, including 319 satisfying all tested category bands. These are system-level benchmark results, not whole-population generation or clinical validation. All tested category lower bounds were zero. Preparation within budget is distinct from strict response latency.
 
-This public branch contains core algorithms, necessary configurations and generic runtime code. It intentionally excludes manuscripts and paper-specific experimental/analysis scripts. The independent evaluator and complete online-selection/delivery runtime have not yet been packaged here; successful imports alone do not reproduce the reported experiment. Public runtime parity remains work in progress. See V2_RUNTIME.md and RELEASE_VERSION.md for export scope. The existing MIT license applies to the public code; it does not relicense third-party data.
+This public branch now includes `dmp4p_runtime`: independent validation, online selection, fixed-pool multi-day search, and fingerprinted day-checkpointed batches. It intentionally excludes manuscripts and paper-specific experimental/analysis scripts. A synthetic input fixture and algorithm correctness tests are included. Reproducing the original reported benchmark additionally requires its exact frozen pools, configuration, code revision and run plan; a later runtime package is not a claim that all original runs have been repeated. See V2_RUNTIME.md and RELEASE_VERSION.md for export scope. The existing MIT license applies to the public code; it does not relicense third-party data.
 
 ## Data and follow-up scope
 
@@ -45,3 +45,11 @@ Branch names are case-sensitive. Figshare repository release `v7` is a revision 
 ## Interpretation and limitations
 
 Outputs are computational fixed-portion food combinations, not observed participant diets or clinically validated prescriptions. Nutrient feasibility refers only to the active supplied bounds. Meal/category priors describe empirical structure; conformity is not proof of culinary coherence, dietary adequacy or user acceptance. Exact `food_id` exclusion does not guarantee semantically different dishes. Source data, learned priors, generated artifacts and code versions must be recorded separately.
+
+## Generic V2.1 runtime entry point
+
+```bash
+PYTHONPATH=. python -m dmp4p_runtime.cli --snapshot examples/runtime_toy --algorithm cpsat_band --max-days 1 --task-seconds 5 --slot-seconds 5 --out toy_result.json
+```
+
+The fixture is synthetic and tests integration only. For V2.1 use `--algorithm v2_quality_recovery` with a compatible trusted fixed-pool snapshot. See [runtime usage](dmp4p_runtime/README.md). CP-SAT requires OR-Tools. Named structural-GA and grouped ablations are supplementary algorithms, not changes to the frozen V2.1 default.

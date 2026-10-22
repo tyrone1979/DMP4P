@@ -9,3 +9,7 @@ Production class: `ga_gpu_v2.FoodCombinerV2`. Quality variants: `algo.v2_quality
 The two quality modules have been relocated from their development directory; the recovery module import is adjusted accordingly. No search behavior was changed during export.
 
 Use Python 3.11 with numpy, pandas, torch, scipy, scikit-learn, PyYAML, tqdm and pyarrow. CUDA availability depends on the installed PyTorch build. Existing repository LICENSE is retained. Exact food identifiers can be excluded across days; semantic dish uniqueness and clinical suitability are not guaranteed.
+
+## Runtime integration update
+
+The generic dmp4p_runtime package now supplies the independent evaluator, online selector and multi-day/checkpointed entry points. Use python -m dmp4p_runtime.cli; the historical production CLI remains separate. Prior statements that those runtime components were omitted describe the earlier cd89bb1 core export. Exact frozen experiment inputs are still required to reproduce that experiment.

@@ -1,0 +1,36 @@
+{
+  "pool_file": "pool.pkl",
+  "personal_path": "personal.json",
+  "target": {
+    "calorie": [
+      120,
+      150
+    ]
+  },
+  "constraint_spec": {
+    "min_foods": 3,
+    "max_combination_size": 3,
+    "require_bld": false,
+    "hard_daily_weight": true,
+    "max_daily_g": 300,
+    "category_presence_hard": true,
+    "category_grams_hard": false,
+    "check_breakfast_placement": false,
+    "check_condiment": false,
+    "notes": [
+      "require_bld=False matches find_bronze_multiobj production driver",
+      "category_grams_hard=False (soft Layer-B / deviation only)",
+      "evaluator mirrors archive hard gates, not fitness==1 alone"
+    ]
+  },
+  "structure_prior": {
+    "daily_weight_g_p5": 100.0,
+    "daily_weight_g_p25": 120.0,
+    "daily_weight_g_p50": 140.0,
+    "daily_weight_g_p75": 180.0,
+    "daily_weight_g_p95": 250.0
+  },
+  "cell_ranges": {},
+  "forbidden_cells": [],
+  "synthetic_fixture": true
+}
